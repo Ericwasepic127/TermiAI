@@ -1,0 +1,37 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      python_version:
+        description: 'Python version to use'
+        required: true
+        default: '3.13'
+        type: string
+      repository:
+        description: 'Target repository (pypi or testpypi)'
+        required: true
+        default: 'testpypi'
+        type: choice
+        options:
+          - testpypi
+          - pypi
+      token:
+        description: 'PyPI token (recommended using one-time token)'
+        required: true
+        type: string
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Publish
+        run: bash ./build.sh --python python --repo ${{ inputs.repository }} --token ${{ inputs.token }}
