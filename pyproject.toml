@@ -2,10 +2,10 @@
 requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 [project]
-name = "example"
-version = "0.0.1"
+name = "TermiAI"
+version = "0.1.0"
 authors = [
-  { name="Example Author", email="author@example.com" },
+  { name="Ericwasepic127", email="ericwasepic127@outlook.com" },
 ]
 description = "A small example package"
 readme = "README.md"
@@ -16,7 +16,13 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "requests",
+    "platformdirs",
+    "httpx",
+    "flet",
+]
 
 [project.urls]
-Homepage = "https://github.com/username/sampleproject"
-Issues = "https://github.com/username/sampleproject/issues"
+Homepage = "https://github.com/ericwasepic127/termiai"
+Issues = "https://github.com/ericwasepic127/termiai/issues"

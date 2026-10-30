@@ -1,4 +1,4 @@
-# README file 
-for your pip package here
-### If you are using GitHub Workflow to make your PyPI package ...
-... use one-time token or make secrets & put your token there!
+### TermiAI
+An AI client do terminal job just for you :)
+### If you scared to type terminal commmand ...
+Use This!! An AI will run commands just for you
