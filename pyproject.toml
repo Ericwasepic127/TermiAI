@@ -23,6 +23,9 @@ dependencies = [
     "flet[all]",
 ]
 
+[project.scripts]
+termiai = "termiai:main"
+
 [project.urls]
 Homepage = "https://github.com/ericwasepic127/termiai"
 Issues = "https://github.com/ericwasepic127/termiai/issues"
