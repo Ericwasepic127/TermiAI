@@ -7,7 +7,7 @@ version = "0.1.0"
 authors = [
   { name="Ericwasepic127", email="ericwasepic127@outlook.com" },
 ]
-description = "A small example package"
+description = "Your personal AI assistant to help terminal"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -20,7 +20,7 @@ dependencies = [
     "requests",
     "platformdirs",
     "httpx",
-    "flet",
+    "flet[all]",
 ]
 
 [project.urls]
