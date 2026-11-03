@@ -1,18 +1,44 @@
 #!/usr/bin/env python3
 # Made by @Ericwasepic127
 
-import httpx, json, asyncio, platformdirs, os, threading as t, uuid, time
+import httpx, json, asyncio, platformdirs, os, threading as t, uuid, time, datetime
 
 CONFIGS = platformdirs.user_config_dir("TermiAI")
 DATA = platformdirs.user_data_dir("TermiAI")
 JOIN = os.path.join
 LIST = os.listdir
 CHATS = JOIN(CONFIGS, "chat.json")
+APPCONFIG = None
 CHATJSON = None
 URL = None
+BASEAIURL = "https://ai-proxy-%s.onrender.com/"
 
 os.makedirs(CONFIGS, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
+
+async def get_current_time(local=True):
+    async with httpx.AsyncClient() as client:
+        try:
+            (1 / 0) if  local else None
+            r = await client.get("https://currentdatetimepy.onrender.com/", timeout=10)
+            return r.text
+        except:
+            import datetime
+            return datetime.datetime.now(datetime.timezone.utc).ctime()
+
+async def run_command(command, at=""):
+    try:
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            stdin=asyncio.subprocess.DEVNULL,
+            cwd=at or None
+        )
+        stdout, stderr = await process.communicate()
+        return {"stdout": stdout.decode("utf-8", errors="replace"), "stderr": stderr.decode("utf-8", errors="replace"), "returncode": process.returncode}
+    except Exception as e:
+        return {"stdout": "", "stderr": getattr(type(e), "__name__", "<Unknown error>") + ": " + str(e), "returncode": 1}
 
 def createChatList():
     if CHATJSON is None:
@@ -21,13 +47,13 @@ def createChatList():
     for idcard, detail in CHATJSON.items():
         give.append()
 
-def createChatName():
+def createChatName(default=None):
     val = str(uuid.uuid4())
     if CHATJSON is None:
         return val
     obj = JOIN(DATA, val + ".json")
     CHATJSON[val] = ["New Chat", time.time()]
-    return val, LiveJson(obj)
+    return val, LiveJson(obj, default_data=default)
 
 def loadChat(name):
     return LiveJson(JOIN(DATA, name))
@@ -38,20 +64,61 @@ def append_message(role, message, var, raw=False):
 async def post(data):
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.post(URL or "https://ai-proxy-x.onrender.com/", data=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120)
+            r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120)
+            m = r.json()
+        except json.JSONDecodeError as e:
+            try:
+                m = {"error": {"message": "DecodeError: " + r.text}}
+            except:
+                m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
+        except (BaseException, Exception) as e:
+            m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
+    return m
+
+async def instantSearch(**kwargs):
+    data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
+    if not data:
+        return {"error": "No search query provided"}
+    async with httpx.AsyncClient() as client:
+        try:
+            r = await client.get("https://api.duckduckgo.com/", headers={"Content-Type": "application/json"}, timeout=120, params={"format": "json", **data})
             m = r.json()
         except (BaseException, Exception) as e:
             m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
     return m
 
-async def search(data):
+async def search(noredirectinsta=False, **kwargs):
+    data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
+    if not data:
+        return {"error": "No search query provided"}
+    if INSTANTSEARCH and not noredirectinsta:
+        return await instantSearch(q=data)
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.post(URL or "https://search-proxy-x.onrender.com/", data=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120)
+            r = await client.post("https://search-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120)
             m = r.json()
         except (BaseException, Exception) as e:
             m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
     return m
+
+async def deepsearch(**kwargs):
+    return await search(**kwargs, noredirectinsta=True)
+
+def buildict(p, tools=None):
+    m = []
+    append_message("system", p, m)
+    r = {"messages": m}
+    if tools:
+        r["tools"] = tools
+        print(r)
+    return r
+
+def deleteChat(name):
+    if name in CHATJSON:
+        del CHATJSON[name]
+    file_path = JOIN(DATA, name + ".json")
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 class LiveJson(dict):
     def __init__(self, file_path="data.json", default_data=None):
@@ -121,8 +188,105 @@ class LiveJson(dict):
                         super().update(data)
                 except Exception:
                     pass
+    def clone(self):
+        cloned = {}
+        for name, item in self.items():
+            cloned[name] = item
+        return cloned
+
+class AsyncAI:
+    def __init__(self, jsonobj: LiveJson, sysprompt):
+        self.data = jsonobj
+        self.post = post
+        self.sysprompt = sysprompt
+        self.maxLimit = APPCONFIG.get("maxToolLoop", 4)
+        self.funcs = {}
+        self.tools = []
+
+    def assignTool(self, asyncfunc, name, desc, params, needs=[]):
+        build = {"type": "function","function": {"parameters": {"type": "object","required": []}}}
+        build["function"]["name"] = name
+        build["function"]["description"] = desc
+        self.funcs[name] = asyncfunc
+        build["function"]["properties"] = params
+        build["function"]["required"] = needs
+        self.tools.append(build)
+        
+    async def send(self, m):
+        currentLoop = 0
+        dclon = {**self.data.clone(), "tools": self.tools} if self.tools else self.data.clone()
+        clone = [{"role": "system", "content": self.sysprompt}] + dclon.get("messages", [])
+        append_message("user", m, clone)
+        dclon["messages"] = clone
+        returned = await self.post(dclon)
+        c = returned.get("choices")
+        if not c:
+            append_message("assistant", returned.get("error").get("message"), clone)
+            self.data["messages"] = clone
+            return returned.get("error").get("message")
+        airesponse = c[0]["message"]
+        append_message("", airesponse, clone, raw=True)
+        tool = c[0].get("finish_reason", "stop")
+        calls = airesponse.get("tool_calls", [])
+        while tool != "stop" and self.maxLimit > currentLoop and calls:
+            replica, coros = [], []
+            for call in calls:
+                fd = call.get("function")
+                func = self.funcs.get(fd.get("name"))
+                nm = fd.get("name")
+                arg = json.loads(fd.get("arguments"))
+                print(fd.get("name") + ":", arg)
+                coros.append(func(**arg))
+                replica.append({"role": "tool", "tool_call_id": call.get("id")})
+            for index, res in enumerate(await asyncio.gather(*coros)):
+                replica[index]["content"] = res if isinstance(res, str) else (json.dumps(res) if isinstance(res, dict) else str(res))
+            for x in replica:
+                clone.append(x)
+            dclon["messages"] = clone
+            returned = await self.post(dclon)
+            c = returned.get("choices")
+            if not c:
+                append_message("assistant", returned.get("error").get("message"), clone)
+                self.data["messages"] = clone
+                return returned.get("error").get("message")
+            airesponse = c[0]["message"]
+            append_message("", airesponse, clone, raw=True)
+            tool = c[0].get("finish_reason", "stop")
+            calls = airesponse.get("tool_calls", [])
+            currentLoop += 1
+        if tool == "tool_calls":
+            for call in calls:
+                clone.append({"role": "tool", "tool_call_id": call.get("id"), "content": "Too much tool calls: try again in next request - you cannot run any tool calls because you exceeding tool limit per one message"})
+            dclon["messages"] = clone
+            returned = await post(dclon)
+            c = returned.get("choices")
+            if not c:
+                tools.append_message("assistant", returned.get("error").get("message"), clone)
+                self.data["messages"] = clone
+                return returned.get("error").get("message")
+            airesponse = c[0]["message"]
+            append_message("", airesponse, clone, raw=True)
+        self.data["messages"] = clone
+        return airesponse.get("content") or airesponse
+
+DEFAULTDATA = {
+    "dark": False,
+    "api": "x",
+    "search": True,
+    "custom": False,
+    "instantSearch": True,
+    "maxToolLoop": 4,
+}
 
 CHATJSON = LiveJson(CHATS)
+APPCONFIG = LiveJson(JOIN(CONFIGS, "appcfg.json"), default_data=DEFAULTDATA)
+URL = APPCONFIG.get("api", BASEAIURL % "x") if APPCONFIG.get("custom") else BASEAIURL % APPCONFIG.get("api", "x")
+INSTANTSEARCH = APPCONFIG.get("instantSearch", True)
 
 if __name__ == '__main__':
-    print(asyncio.run(post([{"role": "user", "content": "Hi"}])))
+    #print(asyncio.run(post({"messages": [{"role": "user", "content": "Hi"}]})))
+    aichat = AsyncAI(LiveJson("test.json"), "Helpful AI Assistant called TermiAI")
+    #aichat.assignTool(instantSearch, "ddgsearch", "Instant search API by duckduckgo, for quick lookups.", {"q": {"type": "string", "description": "Search query (no encode like test+example needed)"}}, ["q"])
+    aichat.assignTool(deepsearch, "deepsearch", "Deep search API by LangSearch, for deep and unfindable questions.", {"q": {"type": "string", "description": "Search query (no encode like test+example needed)"}}, ["q"])
+    aichat.assignTool(get_current_time, "currentutctime", "Get latest time", {"local": {"type": "boolean", "description": "Only set to False if you think local time is wrong (mostly no, so use true)"}}, ["local"])
+    print(asyncio.run(aichat.send("Hi! Can you get my local time clock in UTC please? And then grab latest Github News by that clock so u can fetch absalute latest!")))

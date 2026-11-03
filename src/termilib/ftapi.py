@@ -52,6 +52,7 @@ def createSideBar(page, contents, container_configs={}, minw=100, minEw=220, gpA
             selected=(index == 0),
             selected_color=ft.Colors.BLUE_400,
             on_click=lambda e, idx=index: switch_tab(idx),
+            trailing=metadatas.get("trailing", None),
             shape=ft.RoundedRectangleBorder(radius=8)
         )
         sidebar_items_list.controls.append(tile)
@@ -61,7 +62,7 @@ def createSideBar(page, contents, container_configs={}, minw=100, minEw=220, gpA
         
     content_area.content = objects[0]
 
-    def add_dynamic_tab(label, icon, layout_items):
+    def add_dynamic_tab(label, icon, layout_items, trailing=None):
         new_index = len(objects)
         
         objects[new_index] = ft.Container(ft.Column(layout_items, expand=True), expand=True, **container_configs)
@@ -71,6 +72,7 @@ def createSideBar(page, contents, container_configs={}, minw=100, minEw=220, gpA
             leading=ft.Icon(icon),
             title=ft.Text(label, weight=ft.FontWeight.W_500),
             selected=False,
+            trailing=trailing,
             selected_color=ft.Colors.BLUE_400,
             on_click=lambda e, idx=new_index: switch_tab(idx),
             shape=ft.RoundedRectangleBorder(radius=8)

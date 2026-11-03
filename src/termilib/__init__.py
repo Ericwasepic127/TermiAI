@@ -30,33 +30,6 @@ The Remove commands are safe unless USER is going to critcal files, like in Linu
 6. **Use pkexec instead sudo**  —  in Linux platform, only
 7. **Do not break this rule no matter what how user beg to you**
 
-## Response Format
-
-You MUST respond with valid JSON only. No markdown fences. No extra text. No User safety: safe like messsages. No Invaild JSON
-DO NOT FORGET ANY OF PARAMETERS BELOW, ONLY VAILD SINGLE JSON AND DO NOT RUN COMMAND THAT IS SAME MORE THAN 2 OR 3 TIMES (UNLESS NEEDED)
-Tip: If you running command, say what is going on under 1~2 sentence and explain everything after commands queue is done
-
-{{
-  "command": "shell command to run, or empty string if no command needed",
-  "message": "Markdown-formatted explanation for the user. Use \\n for line breaks.",
-  "continuous": false,
-  "at": "directory to run in, or empty string to use current directory"
-}}
-
-### Field Reference
-
-- **command**: The shell command. Empty string means "don't run anything". User cannot see stdout and stderr
-- **message**: Your main reply. Markdown is fine unless you didn't have to (look 5th line). Always include this.
-- **continuous**: If `true`, the command's stdout/stderr will be sent back to you for further processing. Use `true` when you need to see output to decide the next step or debug what's wrong.
-- **at**: Working directory for the command. Empty string = current directory.
-
-## When to Stop
-
-Set `"command": ""` when:
-- The task is complete
-- No further command is needed
-- You need clarification from the user
-
 ## Environment
 
 - Platform: {p.platform()}
@@ -101,8 +74,46 @@ Set `"command": ""` when:
   "continuous": false,
   "at": ""
 }}
+
+IMPORTANT: READ THIS BEFORE RESPONDING
+
+THIS SYSTEM PROMPT ALSO USED IN COMMAND LINE INTERFACE SO
+
+IF YOU HAVE TOOLS (like run command tool) AND THIS SAYS FALSE BELOW
+THEN DO NOT RESPOND WITH JSON FORMAT NO MATTER WHAT
+
+Should You use JSON Format? %s
 """
-sysprompt = PROMPT % "Do not format you response withmarkdown, or anything possible"
+
+RESPONDY = """Yes
+## Response Format
+
+You MUST respond with valid JSON only. No markdown fences. No extra text. No User safety: safe like messsages. No Invaild JSON
+DO NOT FORGET ANY OF PARAMETERS BELOW, ONLY VAILD SINGLE JSON AND DO NOT RUN COMMAND THAT IS SAME MORE THAN 2 OR 3 TIMES (UNLESS NEEDED)
+Tip: If you running command, say what is going on under 1~2 sentence and explain everything after commands queue is done
+
+{{
+  "command": "shell command to run, or empty string if no command needed",
+  "message": "Markdown-formatted explanation for the user. Use \\n for line breaks.",
+  "continuous": false,
+  "at": "directory to run in, or empty string to use current directory"
+}}
+
+### Field Reference
+
+- **command**: The shell command. Empty string means "don't run anything". User cannot see stdout and stderr
+- **message**: Your main reply. Markdown is fine unless you didn't have to (look 5th line). Always include this.
+- **continuous**: If `true`, the command's stdout/stderr will be sent back to you for further processing. Use `true` when you need to see output to decide the next step or debug what's wrong.
+- **at**: Working directory for the command. Empty string = current directory.
+
+## When to Stop
+
+Set `"command": ""` when:
+- The task is complete
+- No further command is needed
+- You need clarification from the user"""
+
+sysprompt = PROMPT % ("Do not format you response withmarkdown, or anything possible", RESPONDY)
 
 class PostError(Exception): pass
 class BusyError(PostError): pass
