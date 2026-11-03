@@ -18,36 +18,45 @@ def chatElem(page: ft.Page):
     name, data = tools.createChatName(default=tools.buildict(sysprompt))
     chat = setup_ai(data)
     def delete_click(e):
-        tools.deleteChat(name)
-        page.controls.clear()
-        main(page)
-        page.update()
-    #async def onsend(m):
-        
+        def ok(e):
+            tools.deleteChat(name)
+            page.controls.clear()
+            main(page)
+            page.update()
+        # TODO: make Are you sure? section
+        ok(e)
+    async def onsend(m):
+        tools.CHATJSON[name] = [tools.CHATJSON[name][0], time.time()]
+        return await chat.send(m)
     delBtn = ft.IconButton(
         icon=ft.Icons.DELETE_OUTLINE,
         icon_color="red",
         tooltip="Delete Chat",
         on_click=delete_click
     )
+    tools.CHATJSON[name] = ["Chat %s" % name[:6], tools.CHATJSON[name][1]]
     page.add_sidebar_tab(
-        "Chat",
+        tools.CHATJSON[name][0],
         ft.Icons.CHAT_OUTLINED,
-        ftapi.shellv2(page, chat.send, "Thinking...")[0],
+        ftapi.shellv2(page, onsend, "Thinking...")[0],
         delBtn
     )
 
 def loadChatFromJson(page, name):
     data = tools.loadChat(name  + ".json")
     chat = setup_ai(data)
-    #async def onsend(m):
-        
-    item, ap = ftapi.shellv2(page, chat.send, "Thinking...")
+    async def onsend(m):
+        tools.CHATJSON[name] = [tools.CHATJSON[name][0], time.time()]
+        return await chat.send(m)
+    item, ap = ftapi.shellv2(page, onsend, "Thinking...")
     def delete_click(e):
-        tools.deleteChat(name)
-        page.controls.clear()
-        main(page)
-        page.update()
+        def ok(e):
+            tools.deleteChat(name)
+            page.controls.clear()
+            main(page)
+            page.update()
+        # TODO: make Are you sure? section
+        ok(e)
     delBtn = ft.IconButton(
         icon=ft.Icons.DELETE_OUTLINE,
         icon_color="red",
@@ -59,7 +68,7 @@ def loadChatFromJson(page, name):
             continue
         ap(js["content"], int(js["role"] == "assistant"))
     return {
-        "label": "Chat",
+        "label": tools.CHATJSON[name][0],
         "icon": ft.Icons.CHAT_OUTLINED,
         "items": item,
         "trailing": delBtn,
@@ -91,13 +100,13 @@ def main(page: ft.Page):
             "items": [
                 ft.Text("Settings", size=30),
                 darkTog,
-                
+                ft.Text("Coming soon"),
             ],
             "label": "Settings",
             "icon": ft.Icons.SETTINGS
         },
     ]
-    for conf in tools.CHATJSON.keys():
+    for conf in sorted(tools.CHATJSON.keys(), key=lambda k: tools.CHATJSON[k][1], reverse=True):
         sideItems.append(loadChatFromJson(page, conf))
     sideBar = ftapi.createSideBar(page, sideItems)
     page.add(sideBar)
