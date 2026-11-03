@@ -16,6 +16,9 @@ BASEAIURL = "https://ai-proxy-%s.onrender.com/"
 os.makedirs(CONFIGS, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
 
+async def grab(url, method="GET"):
+    async with httpx.AsyncClient
+
 async def get_current_time(local=True):
     async with httpx.AsyncClient() as client:
         try:
