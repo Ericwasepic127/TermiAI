@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Made by @Ericwasepic127
 
-import requests as r, time, platform as p, pathlib, subprocess, json, os
+import requests as r, time, platform as p, pathlib, subprocess, json, os, sys, warnings
 
 HOST = "https://ai-proxy-x.onrender.com"
 current = os.getcwd()
