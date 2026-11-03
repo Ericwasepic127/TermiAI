@@ -6,25 +6,24 @@ sys.path.append("..")
 from termilib import tools, ftapi, PROMPT
 sysprompt = PROMPT % ("Do Markdown formatting to format your response", "***NO***")
 
+def setup_ai(data):
+    ai = tools.AsyncAI(data, sysprompt)
+    ai.assignTool(tools.instantSearch, "ddg_search", "Instant search API by duckduckgo, for quick lookups.", {"q": {"type": "string", "description": "Search query"}}, ["q"]) if tools.APPCONFIG.get("instantSearch", True) else None
+    ai.assignTool(tools.deepsearch, "deepsearch", "Deep search API by LangSearch, for deep and unfindable questions.", {"q": {"type": "string", "description": "Search query"}}, ["q"]) if not tools.APPCONFIG.get("instantSearch", True) else None
+    ai.assignTool(tools.get_current_time, "currentutctime", "Get latest time", {"local": {"type": "boolean", "description": "Use true"}}, ["local"])
+    ai.assignTool(tools.run_command, "run_command", "Runs a shell command.", {"command": {"type": "string", "description": "The command (not cmd argument!!!!)"}, "at": {"type": "string", "description": "Directory to run on"}}, ["command"])
+    return ai
+
 def chatElem(page: ft.Page):
     name, data = tools.createChatName(default=tools.buildict(sysprompt))
+    chat = setup_ai(data)
     def delete_click(e):
         tools.deleteChat(name)
         page.controls.clear()
         main(page)
         page.update()
-    async def onsend(m):
-        dclon = data.clone()
-        clone = dclon["messages"]
-        tools.append_message("user", m, clone)
-        returned = await tools.post(dclon)
-        c = returned.get("choices")
-        if c:
-            tools.append_message("", c[0]["message"], clone, raw=True)
-        else:
-            tools.append_message("assistant", returned.get("error").get("message"), clone)
-        data["messages"] = clone
-        return c[0]["message"]["content"] if c else returned.get("error").get("message")
+    #async def onsend(m):
+        
     delBtn = ft.IconButton(
         icon=ft.Icons.DELETE_OUTLINE,
         icon_color="red",
@@ -34,25 +33,16 @@ def chatElem(page: ft.Page):
     page.add_sidebar_tab(
         "Chat",
         ft.Icons.CHAT_OUTLINED,
-        ftapi.shellv2(page, onsend, "Thinking...")[0],
+        ftapi.shellv2(page, chat.send, "Thinking...")[0],
         delBtn
     )
 
 def loadChatFromJson(page, name):
     data = tools.loadChat(name  + ".json")
-    async def onsend(m):
-        dclon = data.clone()
-        clone = dclon["messages"]
-        tools.append_message("user", m, clone)
-        returned = await tools.post(dclon)
-        c = returned.get("choices")
-        if c:
-            tools.append_message("", c[0]["message"], clone, raw=True)
-        else:
-            tools.append_message("assistant", returned.get("error").get("message"), clone)
-        data["messages"] = clone
-        return c[0]["message"]["content"] if c else returned.get("error").get("message")
-    item, ap = ftapi.shellv2(page, onsend, "Thinking...")
+    chat = setup_ai(data)
+    #async def onsend(m):
+        
+    item, ap = ftapi.shellv2(page, chat.send, "Thinking...")
     def delete_click(e):
         tools.deleteChat(name)
         page.controls.clear()

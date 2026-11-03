@@ -12,13 +12,55 @@ APPCONFIG = None
 CHATJSON = None
 URL = None
 BASEAIURL = "https://ai-proxy-%s.onrender.com/"
+VERBOSE = False
 
 os.makedirs(CONFIGS, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
 
-async def grab(url, method="GET"):
-    async with httpx.AsyncClient
+def swrap(f):
+    def a(*a, **k):
+        res = f(*a, **k)
+        if VERBOSE and res:
+            try:
+                print("---", f.__name__, "---")
+                print(a, k)
+                print(res, repr(res), dir(res), type(res))
+            except:
+                ...
+        return res
+    return a
 
+def awrap(f):
+    async def a(*a, **k):
+        res = await f(*a, **k)
+        if VERBOSE and res:
+            try:
+                print("---", f.__name__, "---")
+                print(a, k)
+                print(res, repr(res), dir(res), type(res))
+            except:
+                ...
+        return res
+    return a
+
+@awrap
+async def grab(url=None, method="GET", follow_redirects=True, **kwargs):
+    async with httpx.AsyncClient() as client:
+        return await getattr(client, method.lower())(url, follow_redirects=follow_redirects, **kwargs)
+
+@awrap
+async def ping(url=None):
+    if url is not None:
+        url = "https://%s-proxy-%s.onrender.com/" % url
+    else:
+        url = URL or BASEAIURL % "x"
+    return await grab(url, timeout=75)
+
+@awrap
+async def loop():
+    return await ping(), await ping(("search", "x"))
+
+@awrap
 async def get_current_time(local=True):
     async with httpx.AsyncClient() as client:
         try:
@@ -29,10 +71,11 @@ async def get_current_time(local=True):
             import datetime
             return datetime.datetime.now(datetime.timezone.utc).ctime()
 
-async def run_command(command, at=""):
+@awrap
+async def run_command(command="", at="", cmd=""):
     try:
         process = await asyncio.create_subprocess_shell(
-            command,
+            command or cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             stdin=asyncio.subprocess.DEVNULL,
@@ -43,6 +86,7 @@ async def run_command(command, at=""):
     except Exception as e:
         return {"stdout": "", "stderr": getattr(type(e), "__name__", "<Unknown error>") + ": " + str(e), "returncode": 1}
 
+@swrap
 def createChatList():
     if CHATJSON is None:
         return []
@@ -50,6 +94,7 @@ def createChatList():
     for idcard, detail in CHATJSON.items():
         give.append()
 
+@swrap
 def createChatName(default=None):
     val = str(uuid.uuid4())
     if CHATJSON is None:
@@ -58,12 +103,14 @@ def createChatName(default=None):
     CHATJSON[val] = ["New Chat", time.time()]
     return val, LiveJson(obj, default_data=default)
 
+@swrap
 def loadChat(name):
     return LiveJson(JOIN(DATA, name))
 
 def append_message(role, message, var, raw=False):
     var.append(message) if raw else var.append({"role": role, "content": message})
 
+@awrap
 async def post(data):
     async with httpx.AsyncClient() as client:
         try:
@@ -78,28 +125,35 @@ async def post(data):
             m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
     return m
 
+@awrap
 async def instantSearch(**kwargs):
     data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
     if not data:
         return {"error": "No search query provided"}
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.get("https://api.duckduckgo.com/", headers={"Content-Type": "application/json"}, timeout=120, params={"format": "json", **data})
+            r = await client.get("https://api.duckduckgo.com/", headers={"Content-Type": "application/json"}, timeout=120, params={"format": "json", "q": data})
             m = r.json()
+        except json.JSONDecodeError:
+            m = {"error": {"message": "Decode failure on response JSON: " + r.text}}
         except (BaseException, Exception) as e:
             m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
     return m
 
+@awrap
 async def search(noredirectinsta=False, **kwargs):
     data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
+    count = int(kwargs.get("count", 5))
     if not data:
         return {"error": "No search query provided"}
     if INSTANTSEARCH and not noredirectinsta:
         return await instantSearch(q=data)
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.post("https://search-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120)
+            r = await client.post("https://search-proxy-x.onrender.com/", content=json.dumps({"query": data, "contents": {"text": True},"freshness": "noLimit", "count": count}), headers={"Content-Type": "application/json"}, timeout=120)
             m = r.json()
+        except json.JSONDecodeError:
+            m = {"error": {"message": "Decode failure on response JSON: " + r.text}}
         except (BaseException, Exception) as e:
             m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
     return m
@@ -107,6 +161,7 @@ async def search(noredirectinsta=False, **kwargs):
 async def deepsearch(**kwargs):
     return await search(**kwargs, noredirectinsta=True)
 
+@swrap
 def buildict(p, tools=None):
     m = []
     append_message("system", p, m)
@@ -206,15 +261,21 @@ class AsyncAI:
         self.funcs = {}
         self.tools = []
 
+    def removeTool(self, name):
+        if name in self.funcs:
+            self.tools = [t for t in self.tools if t["function"]["name"] != name]
+            del self.funcs[name]
+
     def assignTool(self, asyncfunc, name, desc, params, needs=[]):
         build = {"type": "function","function": {"parameters": {"type": "object","required": []}}}
         build["function"]["name"] = name
         build["function"]["description"] = desc
-        self.funcs[name] = asyncfunc
         build["function"]["properties"] = params
         build["function"]["required"] = needs
+        self.funcs[name] = asyncfunc
         self.tools.append(build)
-        
+
+    @awrap
     async def send(self, m):
         currentLoop = 0
         dclon = {**self.data.clone(), "tools": self.tools} if self.tools else self.data.clone()
@@ -238,7 +299,7 @@ class AsyncAI:
                 func = self.funcs.get(fd.get("name"))
                 nm = fd.get("name")
                 arg = json.loads(fd.get("arguments"))
-                print(fd.get("name") + ":", arg)
+                print(fd.get("name") + ":", arg) if VERBOSE else None
                 coros.append(func(**arg))
                 replica.append({"role": "tool", "tool_call_id": call.get("id")})
             for index, res in enumerate(await asyncio.gather(*coros)):
@@ -269,7 +330,7 @@ class AsyncAI:
                 return returned.get("error").get("message")
             airesponse = c[0]["message"]
             append_message("", airesponse, clone, raw=True)
-        self.data["messages"] = clone
+        self.data["messages"] = [c for c in clone if c.get("role") != "system"]
         return airesponse.get("content") or airesponse
 
 DEFAULTDATA = {
@@ -287,9 +348,13 @@ URL = APPCONFIG.get("api", BASEAIURL % "x") if APPCONFIG.get("custom") else BASE
 INSTANTSEARCH = APPCONFIG.get("instantSearch", True)
 
 if __name__ == '__main__':
-    #print(asyncio.run(post({"messages": [{"role": "user", "content": "Hi"}]})))
+    VERBOSE = True
+    asyncio.run(loop())
+    asyncio.run(deepsearch(q="What is capital of france"))
+    print(asyncio.run(post({"messages": [{"role": "user", "content": "Hi"}]})))
     aichat = AsyncAI(LiveJson("test.json"), "Helpful AI Assistant called TermiAI")
-    #aichat.assignTool(instantSearch, "ddgsearch", "Instant search API by duckduckgo, for quick lookups.", {"q": {"type": "string", "description": "Search query (no encode like test+example needed)"}}, ["q"])
-    aichat.assignTool(deepsearch, "deepsearch", "Deep search API by LangSearch, for deep and unfindable questions.", {"q": {"type": "string", "description": "Search query (no encode like test+example needed)"}}, ["q"])
+    aichat.assignTool(instantSearch, "ddgsearch", "Instant search API by duckduckgo, for quick lookups.", {"q": {"type": "string", "description": "Search query (no encode like test+example needed)"}}, ["q"])
+    aichat.assignTool(deepsearch, "deepsearch", "Deep search API by LangSearch, for deep and unfindable questions.", {"q": {"type": "string", "description": "Search query (no encode like test+example needed)"}, "count": {"type": "integer", "description": "Total counts"}}, ["q"])
     aichat.assignTool(get_current_time, "currentutctime", "Get latest time", {"local": {"type": "boolean", "description": "Only set to False if you think local time is wrong (mostly no, so use true)"}}, ["local"])
+    aichat.assignTool(grab, "fetch", "Fetch things from given URL", {"url": {"type": "string", "description": "URL to fetch"}, "params": {"type": "object", "description": "Parameters"}}, ["url"])
     print(asyncio.run(aichat.send("Hi! Can you get my local time clock in UTC please? And then grab latest Github News by that clock so u can fetch absalute latest!")))
