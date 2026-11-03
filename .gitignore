@@ -221,3 +221,8 @@ __marimo__/
 .flet/
 src/*/.flet/
 
+# Tests
+src/*/test.json
+src/*/response.txt
+
+
