@@ -143,8 +143,16 @@ NOW = "Wake it up now"
 NOWAKE = "Do not wake up"
 
 class Client:
-    """Client class to manage AI requests"""
+    """[DEPCRATED]: Client class to manage AI requests"""
     def __init__(self, system_prompt=sysprompt, wake_server=NOW):
+        warnings.warn(
+            "The TermiAI CLI is deprecated and"
+            " does not support native tool calling and the some part broke due "
+            "new server API. Please use the Flet GUI (TermiAI, termiai.main()"
+            f" or {sys.executable} -m termiai) instead, or for API, use termilib.tools.AsyncAI.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         self.at = int(time.time())
         self.processing = None
         self.wake_server(wake_server)
