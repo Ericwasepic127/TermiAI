@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # Made by @Ericwasepic127
 
-import flet as ft, os, sys, copy
+import flet as ft, os, sys, copy, time
 sys.path.append("..")
 from termilib import tools, ftapi, PROMPT
 sysprompt = PROMPT % ("Do Markdown formatting to format your response", "***NO***")
+
+tools.VERBOSE = "--verbose" in sys.argv
 
 def setup_ai(data):
     ai = tools.AsyncAI(data, sysprompt)
@@ -14,17 +16,18 @@ def setup_ai(data):
     ai.assignTool(tools.run_command, "run_command", "Runs a shell command.", {"command": {"type": "string", "description": "The command (not cmd argument!!!!)"}, "at": {"type": "string", "description": "Directory to run on"}}, ["command"])
     return ai
 
-def chatElem(page: ft.Page):
-    name, data = tools.createChatName(default=tools.buildict(sysprompt))
+def chatElem(page: ft.Page, dlg):
+    name, data = tools.createChatName()
     chat = setup_ai(data)
     def delete_click(e):
         def ok(e):
             tools.deleteChat(name)
             page.controls.clear()
             main(page)
+            page.pop_dialog()
             page.update()
-        # TODO: make Are you sure? section
-        ok(e)
+        dlg.actions = [ft.Button(content="YES, I'm sure", on_click=ok), ft.Button(content="CANCEL", on_click=lambda e: page.pop_dialog())]
+        page.show_dialog(dlg)
     async def onsend(m):
         tools.CHATJSON[name] = [tools.CHATJSON[name][0], time.time()]
         return await chat.send(m)
@@ -34,7 +37,7 @@ def chatElem(page: ft.Page):
         tooltip="Delete Chat",
         on_click=delete_click
     )
-    tools.CHATJSON[name] = ["Chat %s" % name[:6], tools.CHATJSON[name][1]]
+    tools.CHATJSON[name] = ["Chat %s" % name[:4], tools.CHATJSON[name][1]]
     page.add_sidebar_tab(
         tools.CHATJSON[name][0],
         ft.Icons.CHAT_OUTLINED,
@@ -42,7 +45,7 @@ def chatElem(page: ft.Page):
         delBtn
     )
 
-def loadChatFromJson(page, name):
+def loadChatFromJson(page, name, dlg):
     data = tools.loadChat(name  + ".json")
     chat = setup_ai(data)
     async def onsend(m):
@@ -54,15 +57,18 @@ def loadChatFromJson(page, name):
             tools.deleteChat(name)
             page.controls.clear()
             main(page)
+            page.pop_dialog()
             page.update()
-        # TODO: make Are you sure? section
-        ok(e)
+        dlg.actions = [ft.Button(content="YES, I'm sure", on_click=ok), ft.Button(content="CANCEL", on_click=lambda e: page.pop_dialog())]
+        page.show_dialog(dlg)
     delBtn = ft.IconButton(
         icon=ft.Icons.DELETE_OUTLINE,
         icon_color="red",
         tooltip="Delete Chat",
         on_click=delete_click
     )
+    if not data.get("messages"):
+        data["messages"] = []
     for js in data["messages"]:
         if js["role"] == "system":
             continue
@@ -77,6 +83,10 @@ def loadChatFromJson(page, name):
 def main(page: ft.Page):
     page.title = "TermiAI - Your personal helper to run commands for you"
     ftapi.setSize(page, (960, 540), False)
+    dlg = ft.AlertDialog(
+        title=ft.Text("ARE YOU SURE TO DELETE CHAT?"),
+        content=ft.Text(f"Are YOU really sure to delete this chat?\nIf you don't know which chat you deleting, not recommended to proceed\n(TermiAI might restart)")
+    )
 
     def darkMode(event):
         page.theme_mode = ft.ThemeMode.DARK if darkTog.value else ft.ThemeMode.LIGHT
@@ -91,7 +101,7 @@ def main(page: ft.Page):
     sideItems = [{
             "items": [
                 ft.Text("Welcome to TermiAI!", size=30),
-                ft.Button("Create new chat", on_click=lambda e: chatElem(page))
+                ft.Button("Create new chat", on_click=lambda e: chatElem(page, dlg))
             ],
             "label": "New Chat",
             "icon": ft.Icons.ADD_CIRCLE
@@ -107,7 +117,9 @@ def main(page: ft.Page):
         },
     ]
     for conf in sorted(tools.CHATJSON.keys(), key=lambda k: tools.CHATJSON[k][1], reverse=True):
-        sideItems.append(loadChatFromJson(page, conf))
+        x = loadChatFromJson(page, conf, dlg)
+        if x:
+            sideItems.append(x)
     sideBar = ftapi.createSideBar(page, sideItems)
     page.add(sideBar)
 

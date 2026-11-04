@@ -172,7 +172,7 @@ def buildict(p, tools=None):
     return r
 
 def deleteChat(name):
-    if name in CHATJSON:
+    if name in CHATJSON or CHATJSON.get(name) is not None:
         del CHATJSON[name]
     file_path = JOIN(DATA, name + ".json")
     if os.path.exists(file_path):
