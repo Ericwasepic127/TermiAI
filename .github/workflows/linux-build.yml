@@ -24,10 +24,10 @@ jobs:
       - name: Compress to tar.xz
         run: |
           cd build/linux
-          tar -cf - . | xz -9 -T0 > ../../../termiai-linux-v1.0.0.tar.xz
+          tar -cf - . | xz -9 -T0 > ../../termiai-linux.tar.xz
 
       - name: Upload App
         uses: actions/upload-artifact@v5
         with:
           name: termiai-linux
-          path: termiai-linux-v1.0.0.tar.xz
+          path: termiai-linux.tar.xz
