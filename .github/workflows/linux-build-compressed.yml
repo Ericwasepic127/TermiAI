@@ -11,31 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Build Flet App
+        uses: flet-dev/flet-build-action@v1
         with:
-          python-version: '3.11'
-
-      - name: Build Linux binary
-        run: |
-          # Replace with your actual build commands
-          mkdir -p termiai-linux
-          echo "Hello, Linux!" > termiai-linux/your_executable
-
-      - name: Strip debug symbols
-        run: |
-          if [ -f termiai-linux/your_executable ]; then
-            strip --strip-unneeded termiai-linux/your_executable
-          fi
+          target: linux
+          runner-python-version: '3.14'
+          bundled-python-version: '3.14'
+          extra-args: '--no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
 
       - name: Compress build output
         run: |
-          tar -cf - termiai-linux | zstd -22 -o termiai-linux.tar.zst
+          cd build/linux
+          tar -cf - . | zstd -22 -o ../../termiai-linux.tar.zst
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: termiai-linux
           path: termiai-linux.tar.zst
