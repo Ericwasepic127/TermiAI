@@ -1,15 +1,25 @@
 #!/bin/sh
 set -e
 
-if [ -d "$HOME/.local/share/TermiAI-core" ]; then
-    rm -rf "$HOME/.local/share/TermiAI-core" || true
+CORE_DIR="/usr/local/share/TermiAI-core"
+
+if [ -d "$CORE_DIR" ]; then
+    rm -rf "$CORE_DIR" || true
 fi
 
-echo "Installing Pip dependencies"
+echo "Using Pip to install dependencies and TermiAI..."
 
-pip3 install --break-system-packages termiai || (git clone https://github.com/ericwasepic127/termiai.git $HOME/.local/share/TermiAI-core && cd $HOME/.local/share/TermiAI-core/ && pip install .)
+pip3 install --break-system-packages terminal-assistant-interface || (git clone https://github.com/ericwasepic127/termiai.git "$CORE_DIR" && cd "$CORE_DIR" && pip install --break-system-packages .)
 
 echo "Finishing up ..."
+
+if command -v update-desktop-database > /dev/null; then
+    update-desktop-database /usr/share/applications
+fi
+
+if command -v gtk-update-icon-cache > /dev/null; then
+    gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+fi
 
 python3 -m termiai.tools > /dev/null || true
 

@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+if [ "$1" = "purge" ]; then
+    echo "Cleaning up TermiAI core files..."
+    if [ -d "/usr/local/share/TermiAI-core" ]; then
+        rm -rf "/usr/local/share/TermiAI-core" || true
+    fi
+fi
+if command -v update-desktop-database > /dev/null; then
+    update-desktop-database /usr/share/applications || true
+fi
+
+if command -v gtk-update-icon-cache > /dev/null; then
+    gtk-update-icon-cache -f -t /usr/share/icons/hicolor || true
+fi
+
+exit 0

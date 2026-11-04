@@ -1,8 +1,14 @@
-Package: example
-Version: 1.0.0
-Section: base
+Package: TermiAI
+Version: 1.0.6
+Section: utils
+Vcs-Git: https://github.com/ericwasepic127/termiai.git
+Vcs-Browser: https://github.com/ericwasepic127/termiai
 Priority: optional
-Architecture: all
-Maintainer: Your Name <you@example.com>
-Description: Example Debian package
- A short description of what this package does.
+Architecture: amd64
+Depends: python3, python3-pip, git 
+Homepage: https://github.com/ericwasepic127/termiai
+Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
+Description: Your personal AI assistant to help terminal
+ TermiAI is a Flet-based GUI AI assistant that helps users run
+ terminal commands without fear. It supports tool calling, web
+ search, and a custom agent loop.
