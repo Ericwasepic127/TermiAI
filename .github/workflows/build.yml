@@ -1,0 +1,38 @@
+name: Build Native Apps
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact_name: termiai-linux
+          - os: windows-latest
+            platform: windows
+            artifact_name: termiai-windows
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build Flet App
+        uses: flet-dev/flet-build-action@v1
+        with:
+          target: ${{ matrix.platform }}
+          runner-python-version: '3.14'
+          bundled-python-version: '3.14'
+          extra-args: '--no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
+
+      - name: Upload App
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: build/${{ matrix.platform }}/*
