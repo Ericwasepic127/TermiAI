@@ -1,0 +1,42 @@
+name: Build Linux App (Compressed)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Build Linux binary
+        run: |
+          # Replace with your actual build commands
+          mkdir -p termiai-linux
+          echo "Hello, Linux!" > termiai-linux/your_executable
+
+      - name: Strip debug symbols
+        run: |
+          if [ -f termiai-linux/your_executable ]; then
+            strip --strip-unneeded termiai-linux/your_executable
+          fi
+
+      - name: Compress build output
+        run: |
+          tar -cf - termiai-linux | zstd -22 -o termiai-linux.tar.zst
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: termiai-linux
+          path: termiai-linux.tar.zst
+          retention-days: 5

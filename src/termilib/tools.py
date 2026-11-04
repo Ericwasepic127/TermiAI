@@ -13,6 +13,11 @@ CHATJSON = None
 URL = None
 BASEAIURL = "https://ai-proxy-%s.onrender.com/"
 VERBOSE = False
+THERROR = """<!doctype html>
+<html lang=en>
+<title>429 Too Many Requests</title>
+<h1>Too Many Requests</h1>
+<p>{&#34;error&#34;: {&#34;message&#34;: &#34;Too many requests!&#34;}}</p>"""
 
 os.makedirs(CONFIGS, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
@@ -118,7 +123,10 @@ async def post(data):
             m = r.json()
         except json.JSONDecodeError as e:
             try:
-                m = {"error": {"message": "DecodeError: " + r.text}}
+                if ("<!doctype html>" in r.text  and "<html>" in r.text and r.status_code == 429 and "error" in r.text) or THERROR in r.text.strip().rstrip():
+                    m = {"error": {"message": "Too many requests per minute. Please wait about 1 minute"}}
+                else:
+                    m = {"error": {"message": "DecodeError: " + r.text}}
             except:
                 m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
         except (BaseException, Exception) as e:
@@ -252,6 +260,10 @@ class LiveJson(dict):
             cloned[name] = item
         return cloned
 
+class MemJson(dict):
+    def clone(self):
+        return MemJson(self)
+
 class AsyncAI:
     def __init__(self, jsonobj: LiveJson, sysprompt):
         self.data = jsonobj
@@ -286,7 +298,7 @@ class AsyncAI:
         c = returned.get("choices")
         if not c:
             append_message("assistant", returned.get("error").get("message"), clone)
-            self.data["messages"] = clone
+            self.data["messages"] = [c for c in clone if c.get("role") != "system"]
             return returned.get("error").get("message")
         airesponse = c[0]["message"]
         append_message("", airesponse, clone, raw=True)
@@ -311,7 +323,7 @@ class AsyncAI:
             c = returned.get("choices")
             if not c:
                 append_message("assistant", returned.get("error").get("message"), clone)
-                self.data["messages"] = clone
+                self.data["messages"] = [c for c in clone if c.get("role") != "system"]
                 return returned.get("error").get("message")
             airesponse = c[0]["message"]
             append_message("", airesponse, clone, raw=True)
@@ -326,7 +338,7 @@ class AsyncAI:
             c = returned.get("choices")
             if not c:
                 tools.append_message("assistant", returned.get("error").get("message"), clone)
-                self.data["messages"] = clone
+                self.data["messages"] = [c for c in clone if c.get("role") != "system"]
                 return returned.get("error").get("message")
             airesponse = c[0]["message"]
             append_message("", airesponse, clone, raw=True)
