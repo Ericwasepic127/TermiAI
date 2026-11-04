@@ -1,0 +1,33 @@
+name: Build Native Apps
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build Flet App
+        uses: flet-dev/flet-build-action@v1
+        with:
+          target: linux
+          runner-python-version: '3.14'
+          bundled-python-version: '3.14'
+          extra-args: '--no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
+
+      - name: Compress to tar.xz
+        run: |
+          cd build/linux
+          tar -cf - . | xz -9 -T0 > ../../../termiai-linux-v1.0.0.tar.xz
+
+      - name: Upload App
+        uses: actions/upload-artifact@v5
+        with:
+          name: termiai-linux
+          path: termiai-linux-v1.0.0.tar.xz
