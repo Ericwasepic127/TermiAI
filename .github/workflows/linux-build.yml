@@ -1,4 +1,4 @@
-name: Build Native Apps
+name: Build Linux App
 
 on:
   workflow_dispatch:
