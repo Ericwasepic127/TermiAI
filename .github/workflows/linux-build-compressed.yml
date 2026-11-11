@@ -13,18 +13,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      #- name: Build Flet App
-      #  uses: flet-dev/flet-build-action@v1
-      #  with:
-      #    target: linux
-      #    runner-python-version: '3.14'
-      #    bundled-python-version: '3.14'
-      #    extra-args: '--no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
+      - name: Build Flet App
+        uses: flet-dev/flet-build-action@v1
+        with:
+          target: linux
+          runner-python-version: '3.14'
+          bundled-python-version: '3.14'
+          extra-args: '--no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
 
       - name: Compress build output
         run: |
-          pip3 install flet[all]
-          flet build linux --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main
+          #pip3 install flet[all]
+          #flet build linux --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main
           cd build/linux
           tar -cf - . | zstd -22 --ultra -o ../../termiai-linux.tar.zst
 
