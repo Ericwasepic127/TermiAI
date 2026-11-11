@@ -141,7 +141,7 @@ async def get_current_time(local=True):
         try:
             (1 / 0) if  local else None
             r = await client.get("https://currentdatetimepy.onrender.com/", timeout=45)
-            return r.text, "user_time_zone": "GMT" + str(datetime.datetime.now().astimezone().tzinfo)}
+            return {r.text, "user_time_zone": "GMT" + str(datetime.datetime.now().astimezone().tzinfo)}
         except:
             import datetime
             return {"utcdate": datetime.datetime.now(datetime.timezone.utc).ctime(), "user_time_zone": "GMT" + str(datetime.datetime.now().astimezone().tzinfo)}
