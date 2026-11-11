@@ -19,7 +19,7 @@ jobs:
           target: linux
           runner-python-version: '3.14'
           bundled-python-version: '3.14'
-          extra-args: '--no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
+          extra-args: '--module-name termiai_main --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
 
       - name: Compress build output
         run: |
