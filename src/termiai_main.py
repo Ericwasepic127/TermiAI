@@ -5,4 +5,4 @@ from termiai import main
 import flet
 
 if __name__ == "__main__":
-    flet.run(main)
+    flet.run(main, no_cdn=True)

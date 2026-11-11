@@ -24,7 +24,7 @@ jobs:
       - name: Compress build output
         run: |
           cd build/linux
-          tar -cf - . | zstd -22 -o ../../termiai-linux.tar.zst
+          tar -cf - . | zstd -22 --ultra -o ../../termiai-linux.tar.zst
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6

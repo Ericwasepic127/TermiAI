@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Made by @Ericwasepic127
 
-import httpx, json, asyncio, platformdirs, os, threading as t, uuid, time, datetime
+import httpx, json, asyncio, platformdirs, os, threading as t, uuid, time, datetime, inspect, traceback
 
 CONFIGS = platformdirs.user_config_dir("TermiAI")
 DATA = platformdirs.user_data_dir("TermiAI")
@@ -21,6 +21,72 @@ THERROR = """<!doctype html>
 
 os.makedirs(CONFIGS, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
+
+class HandleError:
+    def __init__(self):
+        self.cleanup()
+    def cleanup(self):
+        self.error_occured = False
+        self.error = (None, None, None)
+        self.raise_error = False
+        self.error_simple = None
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_obj, exc_trace):
+        self.error = (exc_type,exc_obj,exc_trace)
+        self.error_occured = all((exc_type,exc_obj,exc_trace))
+        if not self.error_occured:
+            return
+        name = getattr(exc_type, "__name__", "Exception")
+        has = "".join(getattr(exc_obj, "args", ())).replace("\n", " ").strip().rstrip()
+        if has:
+            self.error_simple = f"{name}: {has}"
+        else:
+            self.error_simple = name
+        return not self.raise_error
+
+def verbose_err(*a):
+    if VERBOSE and all(a):
+        traceback.print_exception(*a)
+
+def unerror(is_sync=True, onerror=verbose_err):
+    """
+     Reccomended wrapper for tool call functions
+     Useful, does give error simplified (like Exception: testerror)
+     Does not raises error
+     Gives error's info to onerror function
+    """
+    def syncwrap(f):
+        def wrapper(*a, **k):
+            handle = HandleError()
+            with handle:
+                r = f(*a, **k)
+            if handle.error_occured:
+                r = handle.error_simple
+                err = handle.error
+                handle.cleanup()
+                if callable(onerror):
+                    with handle:
+                        onerror(*err)
+            return r
+        return wrapper
+    def asyncwrap(f):
+        async def wrapper(*a, **k):
+            handle = HandleError()
+            with handle:
+                r = await f(*a, **k)
+            if handle.error_occured:
+                r = handle.error_simple
+                err = handle.error
+                handle.cleanup()
+                if callable(onerror):
+                    with handle:
+                        onerror(*err)
+            return r
+        return wrapper
+    if callable(is_sync):
+        return syncwrap(is_sync)
+    return syncwrap if is_sync else asyncwrap
 
 def swrap(f):
     def a(*a, **k):
@@ -49,11 +115,13 @@ def awrap(f):
     return a
 
 @awrap
+@unerror(False)
 async def grab(url=None, method="GET", follow_redirects=True, **kwargs):
     async with httpx.AsyncClient() as client:
         return await getattr(client, method.lower())(url, follow_redirects=follow_redirects, **kwargs)
 
 @awrap
+@unerror(False)
 async def ping(url=None):
     if url is not None:
         url = "https://%s-proxy-%s.onrender.com/" % url
@@ -62,21 +130,24 @@ async def ping(url=None):
     return await grab(url, timeout=75)
 
 @awrap
+@unerror(False)
 async def loop():
     return await ping(), await ping(("search", "x"))
 
 @awrap
+@unerror(False)
 async def get_current_time(local=True):
     async with httpx.AsyncClient() as client:
         try:
             (1 / 0) if  local else None
-            r = await client.get("https://currentdatetimepy.onrender.com/", timeout=10)
-            return r.text
+            r = await client.get("https://currentdatetimepy.onrender.com/", timeout=45)
+            return r.text, "user_time_zone": "GMT" + str(datetime.datetime.now().astimezone().tzinfo)}
         except:
             import datetime
-            return datetime.datetime.now(datetime.timezone.utc).ctime()
+            return {"utcdate": datetime.datetime.now(datetime.timezone.utc).ctime(), "user_time_zone": "GMT" + str(datetime.datetime.now().astimezone().tzinfo)}
 
 @awrap
+@unerror(False)
 async def run_command(command="", at="", cmd=""):
     try:
         process = await asyncio.create_subprocess_shell(
@@ -134,6 +205,7 @@ async def post(data):
     return m
 
 @awrap
+@unerror(False)
 async def instantSearch(**kwargs):
     data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
     if not data:
@@ -149,6 +221,7 @@ async def instantSearch(**kwargs):
     return m
 
 @awrap
+@unerror(False)
 async def search(noredirectinsta=False, **kwargs):
     data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
     count = int(kwargs.get("count", 5))
@@ -288,6 +361,7 @@ class AsyncAI:
         self.tools.append(build)
 
     @awrap
+    @unerror(False)
     async def send(self, m):
         currentLoop = 0
         dclon = {**self.data.clone(), "tools": self.tools} if self.tools else self.data.clone()
@@ -343,7 +417,7 @@ class AsyncAI:
             airesponse = c[0]["message"]
             append_message("", airesponse, clone, raw=True)
         self.data["messages"] = [c for c in clone if c.get("role") != "system"]
-        return airesponse.get("content") or airesponse
+        return airesponse.get("content") or "AI empty response"
 
 DEFAULTDATA = {
     "dark": False,

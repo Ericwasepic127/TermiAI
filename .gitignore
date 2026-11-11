@@ -225,4 +225,7 @@ src/*/.flet/
 src/*/test.json
 src/*/response.txt
 
+# Build assests
+src/assests/
+
 

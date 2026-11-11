@@ -9,7 +9,7 @@ fi
 
 echo "Using Pip to install dependencies and TermiAI..."
 
-pip3 install --break-system-packages terminal-assistant-interface || (git clone https://github.com/ericwasepic127/termiai.git "$CORE_DIR" && cd "$CORE_DIR" && pip install --break-system-packages .)
+pip3 install --break-system-packages --ignore-installed terminal-assistant-interface || (git clone https://github.com/ericwasepic127/termiai.git "$CORE_DIR" && cd "$CORE_DIR" && pip install --break-system-packages --ignore-installed .)
 
 echo "Finishing up ..."
 

@@ -3,7 +3,7 @@ requires = ["setuptools >= 77.0.3"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "Terminal-Assistant-Interface"
-version = "1.0.6"
+version = "1.0.8"
 authors = [
   { name="Ericwasepic127", email="ericwasepic127@outlook.com" },
 ]
@@ -20,7 +20,8 @@ dependencies = [
     "requests",
     "platformdirs",
     "httpx",
-    "flet[all]",
+    "flet",
+    "flet-desktop",
 ]
 
 [project.scripts]
@@ -34,7 +35,6 @@ build_number = 1
 
 [tool.flet.app]
 path = "src"
-module = "termiai_main"
 
 [project.urls]
 Homepage = "https://github.com/ericwasepic127/termiai"
