@@ -190,15 +190,19 @@ def append_message(role, message, var, raw=False):
 async def post(data):
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120)
+            r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120, follow_redirects=True)
             m = r.json()
         except json.JSONDecodeError as e:
+            if VERBOSE:
+                 print(r.text, "\nStatus code:", r.status_code)
             try:
                 if ("<!doctype html>" in r.text  and "<html>" in r.text and r.status_code == 429 and "error" in r.text) or THERROR in r.text.strip().rstrip():
                     m = {"error": {"message": "Too many requests per minute. Please wait about 1 minute"}}
                 else:
-                    m = {"error": {"message": "DecodeError: " + r.text}}
-            except:
+                    if "<!doctype html>" in r.text.lower()  and "<html>" in r.text and r.headers.get("content-type", "html") != "application/json" and not r.ok or "base64" in r.text.lower() or "render" in r.text.lower() or "waf" in r.text.lower():
+                        m = {"error": {"message": "Some serverside problems, please try again later"}}
+                    m = {"error": {"message": "Decode Error (server did not sent what expected): " + r.text[:50]}}
+            except (BaseException, Exception) as e:
                 m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
         except (BaseException, Exception) as e:
             m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
@@ -411,7 +415,7 @@ class AsyncAI:
             returned = await post(dclon)
             c = returned.get("choices")
             if not c:
-                tools.append_message("assistant", returned.get("error").get("message"), clone)
+                append_message("assistant", returned.get("error").get("message"), clone)
                 self.data["messages"] = [c for c in clone if c.get("role") != "system"]
                 return returned.get("error").get("message")
             airesponse = c[0]["message"]

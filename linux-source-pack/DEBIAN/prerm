@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+if [ "$1" = "purge" ]; then
     echo "Deleting TermiAI config and data..."
     if [ -n "$SUDO_USER" ]; then
         sudo -u "$SUDO_USER" sh -c "echo 'y' | termiai-factory-reset" || true
