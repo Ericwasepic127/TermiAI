@@ -1,0 +1,97 @@
+name: Build & Publish .deb + APT Repo on Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Determine Version
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW_TAG="${{ github.event.release.tag_name }}"
+            CLEAN_VER="${RAW_TAG#v}"
+          else
+            CLEAN_VER="${{ github.event.inputs.version }}"
+          fi
+          echo "version=${CLEAN_VER}" >> $GITHUB_OUTPUT
+          echo "Building version: ${CLEAN_VER}"
+
+      - name: Checkout main repository
+        uses: actions/checkout@v7
+        with:
+          path: main-repo
+
+      - name: Install dependences
+        run: |
+          pip3 install flet[all]
+          sudo apt update
+          sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
+
+      - name: Build the app
+        run: flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+
+      - name: Package .deb using linux-template
+        id: pkg
+        run: |
+          cd main-repo
+          VER="${{ steps.ver.outputs.version }}"
+          DEB_NAME="termiai-linux-${VER}-amd64.deb"
+          rm -rf linux-template/usr/lib/TermiAI/*
+          mkdir -p linux-template/usr/lib/TermiAI
+          cp -r build/linux/* linux-template/usr/lib/TermiAI/
+          chmod -R 755 linux-template/usr/lib/TermiAI
+          mkdir -p linux-template/usr/bin
+          ln -sf /usr/lib/TermiAI/Terminal-Assistant-Interface linux-template/usr/bin/termiai
+          sed -i "s/^Version:.*/Version: ${VER}/" linux-template/DEBIAN/control
+          chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
+          chmod 644 linux-template/DEBIAN/control
+          dpkg-deb --root-owner-group --build linux-template "../${DEB_NAME}"
+          echo "deb_name=${DEB_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Attach .deb to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.pkg.outputs.deb_name }}
+
+      - name: Checkout existing apt-repos branch
+        uses: actions/checkout@v7
+        with:
+          ref: apt-repos
+          path: apt-repo
+
+      - name: Update APT metadata & push to apt-repos
+        run: |
+          DEB_NAME="${{ steps.pkg.outputs.deb_name }}"
+          cp "${DEB_NAME}" apt-repo/
+          cd apt-repo
+          ls -t termiai-linux-*-amd64.deb | tail -n +6 | xargs -r rm --
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k -f Packages
+          cat <<EOF > Release
+          Origin: TermiAI
+          Label: TermiAI
+          Suite: stable
+          Codename: stable
+          Architectures: amd64
+          Components: main
+          Description: Official APT repository for TermiAI
+          Date: $(date -Ru)
+          EOF
+          apt-ftparchive release . >> Release
+          git add -f *.deb Packages Packages.gz Release
+          git commit -m "Release ${{ steps.ver.outputs.version }}" || echo "No changes to commit"
+          git push origin apt-repos
