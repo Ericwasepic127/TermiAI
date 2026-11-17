@@ -48,3 +48,9 @@ jobs:
           name: termiai-linux-xz
           path: termiai-linux.tar.xz
           retention-days: 5
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: termiai-linux-raw
+          path: build/linux/
+          retention-days: 5
