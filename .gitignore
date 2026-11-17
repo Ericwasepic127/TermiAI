@@ -227,5 +227,5 @@ src/*/response.txt
 
 # Build assests
 src/assests/
-
+*.deb
 
