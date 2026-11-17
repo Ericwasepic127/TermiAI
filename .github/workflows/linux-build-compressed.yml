@@ -24,8 +24,8 @@ jobs:
       - name: Compress build output
         run: |
           pip3 install flet[all]
-          apt update
-          apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
+          sudo apt update
+          sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
           flet build linux --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
           cd build/linux
           tar -cf - . | zstd -22 --ultra -o ../../termiai-linux.tar.zst
