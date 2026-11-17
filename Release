@@ -1,0 +1,25 @@
+Origin: TermiAI
+Label: TermiAI
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Official APT repository for TermiAI
+Date: Tue, 17 Nov 2026 16:09:38 +0000
+Date: Tue, 17 Nov 2026 16:09:38 +0000
+MD5Sum:
+ 28c0eabe0a688acbb6fcc18ec9254f3d              777 Packages
+ 2124f448e51f8a80dcd57d0841689455              497 Packages.gz
+ b7d544cad888bfc566155df1db9d1efb              225 Release
+SHA1:
+ 94009f03e142e54dd94f4a5bc306df5a51da2ce8              777 Packages
+ 5c50e1d238ac4fb2162ddc42194c2128f5f32dd6              497 Packages.gz
+ 02e745c65b958a0ad62b4bc89098bccd6280d656              225 Release
+SHA256:
+ 3954eee2f536a532a78827694b440f5ec80bde07b0d78f3d6ca5c46fba5c0b5c              777 Packages
+ 0d817cca42c96dae9e0b2e024fa0de039801d6bc5ea3d1c63f853e8a3847429c              497 Packages.gz
+ 0dd5560fee639bdf421d4abd3d425db8acc841cfe8f038e7b926ba4e80557ee3              225 Release
+SHA512:
+ c7fb79dde7ba9fe82ab9bbcee7081a73f4c236ba340a51ac377b0a52367fa643ad3ee63ebc59caafe49427c311cfb2b9b76ce90a295f90a2203e2235de699445              777 Packages
+ c4c56f6a4d3db7f487fc91b7a63bbffd29918b8fd863753b3bb5d683280ac75670f42d10c2c6837c8bcf9ce2aee26b4c19706b2f6891403abc07f708d1581a39              497 Packages.gz
+ 54008f8b32fa66bf7c23e8019e6a6b93947ae8c60a12fa6650e0fd6ae32707966efe9e3f4780c3ae7921dd971d5c203919869a155210a9746095b248209f0b42              225 Release
