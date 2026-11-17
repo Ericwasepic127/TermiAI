@@ -20,19 +20,31 @@ jobs:
       #    runner-python-version: '3.14'
       #    bundled-python-version: '3.14'
       #    extra-args: '--module-name termiai_main --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/'
-
-      - name: Compress build output
+      - name: Install dependences
         run: |
           pip3 install flet[all]
           sudo apt update
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
-          flet build linux --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+
+      - name: Build the app
+        run: flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+          
+      - name: Compress build output
+        run: |
           cd build/linux
           tar -cf - . | zstd -22 --ultra -o ../../termiai-linux.tar.zst
+          tar -cf - . | xz -9 -T0 > ../../termiai-linux.tar.xz
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
-          name: termiai-linux
+          name: termiai-linux-zst
           path: termiai-linux.tar.zst
+          retention-days: 5
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: termiai-linux-xz
+          path: termiai-linux.tar.xz
           retention-days: 5
