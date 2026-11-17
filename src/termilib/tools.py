@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 # Made by @Ericwasepic127
 
-import httpx, json, asyncio, platformdirs, os, threading as t, uuid, time, datetime, inspect, traceback
+import httpx, json, asyncio, platformdirs, os, threading as t, uuid, time, datetime, inspect, traceback, tempfile, sys
+
+try:
+    RUNTIMEDIR = platformdirs.user_runtime_dir("TermiAI", ensure_exists=True)
+except (OSError, PermissionError):
+    RUNTIMEDIR = os.path.join(tempfile.gettempdir(), "TermiAI")
+    os.makedirs(RUNTIMEDIR, exist_ok=True)
 
 CONFIGS = platformdirs.user_config_dir("TermiAI")
 DATA = platformdirs.user_data_dir("TermiAI")
@@ -13,6 +19,7 @@ CHATJSON = None
 URL = None
 BASEAIURL = "https://ai-proxy-%s.onrender.com/"
 VERBOSE = False
+ping_runs = False
 THERROR = """<!doctype html>
 <html lang=en>
 <title>429 Too Many Requests</title>
@@ -21,6 +28,30 @@ THERROR = """<!doctype html>
 
 os.makedirs(CONFIGS, exist_ok=True)
 os.makedirs(DATA, exist_ok=True)
+
+LOCKPATH = os.path.join(RUNTIMEDIR, ".lockfile")
+_lock_fd = open(LOCKPATH, "w")
+
+def acquire_lock(fd):
+    if sys.platform == "win32":
+        import msvcrt
+        fd.seek(0)
+        msvcrt.locking(fd.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+        fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+try:
+    acquire_lock(_lock_fd)
+    _lock_fd.write(f"pid={os.getpid()} time={int(time.time())}\n")
+    _lock_fd.flush()
+except (BlockingIOError, OSError):
+    print("TermiAI is already running!")
+    sys.exit(1)
+except SystemExit:
+    raise
+except:
+    pass
 
 class HandleError:
     def __init__(self):
@@ -114,6 +145,35 @@ def awrap(f):
         return res
     return a
 
+import zipfile
+
+@swrap
+def export_backup(zip_path: str):
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for folder, prefix in [(CONFIGS, "configs"), (DATA, "data")]:
+            if os.path.exists(folder):
+                for fname in os.listdir(folder):
+                    fpath = JOIN(folder, fname)
+                    if os.path.isfile(fpath):
+                        zf.write(fpath, arcname=f"{prefix}/{fname}")
+
+@swrap
+def import_backup(zip_path: str):
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        for member in zf.namelist():
+            if member.endswith("/") or ".." in member:
+                continue
+            if member.startswith("configs/"):
+                target = JOIN(CONFIGS, os.path.basename(member))
+            elif member.startswith("data/"):
+                target = JOIN(DATA, os.path.basename(member))
+            else:
+                continue
+            with zf.open(member) as src, open(target, "wb") as dst:
+                dst.write(src.read())
+    CHATJSON.reload()
+    APPCONFIG.reload()
+
 @awrap
 @unerror(False)
 async def grab(url=None, method="GET", follow_redirects=True, **kwargs):
@@ -192,6 +252,11 @@ async def post(data):
         try:
             r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120, follow_redirects=True)
             m = r.json()
+            if isinstance(m, list):
+                try:
+                    m = json.loads(m[0])
+                except:
+                    pass
         except json.JSONDecodeError as e:
             if VERBOSE:
                  print(r.text, "\nStatus code:", r.status_code)
@@ -201,7 +266,8 @@ async def post(data):
                 else:
                     if "<!doctype html>" in r.text.lower()  and "<html>" in r.text and r.headers.get("content-type", "html") != "application/json" and not r.ok or "base64" in r.text.lower() or "render" in r.text.lower() or "waf" in r.text.lower():
                         m = {"error": {"message": "Some serverside problems, please try again later"}}
-                    m = {"error": {"message": "Decode Error (server did not sent what expected): " + r.text[:50]}}
+                    else:
+                        m = {"error": {"message": "Decode Error (server did not sent what expected): " + r.text[:50]}}
             except (BaseException, Exception) as e:
                 m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
         except (BaseException, Exception) as e:
@@ -410,7 +476,7 @@ class AsyncAI:
             currentLoop += 1
         if tool == "tool_calls":
             for call in calls:
-                clone.append({"role": "tool", "tool_call_id": call.get("id"), "content": "Too much tool calls: try again in next request - you cannot run any tool calls because you exceeding tool limit per one message"})
+                clone.append({"role": "tool", "tool_call_id": call.get("id"), "content": "Too much tool calls: try again in next request - you cannot run any tool calls because you exceeding tool limit per one message."})
             dclon["messages"] = clone
             returned = await post(dclon)
             c = returned.get("choices")
@@ -429,7 +495,7 @@ DEFAULTDATA = {
     "search": True,
     "custom": False,
     "instantSearch": True,
-    "maxToolLoop": 4,
+    "maxToolLoop": 5,
 }
 
 CHATJSON = LiveJson(CHATS)

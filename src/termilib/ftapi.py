@@ -173,7 +173,7 @@ def shellv2(page, do, waitmsg="Please wait..."):
 
     log = ft.Column(auto_scroll=True, spacing=12, expand=True, scroll=ft.ScrollMode.AUTO)
     log.flag = False
-    inp = ft.TextField(expand=True, autofocus=True)
+    inp = ft.TextField(expand=True, autofocus=True, multiline=True, min_lines=1, max_lines=5, shift_enter=True)
     send_btn = ft.IconButton(ft.Icons.SEND)
     def handle_link(e):
         page.run_task(url_launcher.launch_url, e.data)
@@ -216,11 +216,13 @@ def shellv2(page, do, waitmsg="Please wait..."):
         out = ft.Markdown(value=f"*{waitmsg}*", selectable=False, extension_set=ft.MarkdownExtensionSet.GITHUB_WEB)
         log.controls.append(out)
         send_btn.disabled = True
+        inp.disabled = True
         page.update()
         response_text = await do(q)
         out.value = response_text
         out.selectable = True
         send_btn.disabled = False
+        inp.disabled = False
         await inp.focus()
         page.update()
     inp.on_submit = lambda e: page.run_task(send, e)

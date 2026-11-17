@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # Made by @Ericwasepic127
 
-import flet as ft, os, sys, copy, time, asyncio, platform as p, pathlib
+import flet as ft, os, sys, time, asyncio, platform as p, pathlib
 sys.path.append("..")
 sys.setrecursionlimit((10 ** 9) * 2)
 from termilib import tools, ftapi
+tools.alock =asyncio.Lock()
 sysprompt = PROMPT = f"""You are TermiAI, a helpful assistant for users who are scared of the terminal.
 You are created by @Ericwasepic127, and licensed under MIT
 
@@ -37,7 +38,7 @@ The Remove commands are safe unless USER is going to critcal files, like in Linu
 You have access to these tools:
 - `ddg_search` OR `deepsearch`: Use for web searches, the search tool may or may not exists, or diffrent name due user settings sets ddg_search or deepsearch or even disabled
 - `currentutctime`: Use for getting the current time
-- `run_command`: Use for running shell commands
+- `run_command`: Use for running shell commands, but user cann't see terminal output
 - `fetch`: Fetches things from internet, as like cURL, but use this instead cURL
 
 Use the appropriate tool for each task. Do NOT output JSON. Use the native tool calling mechanism.
@@ -56,12 +57,40 @@ Format your response with Markdown.
 tools.VERBOSE = "--verbose" in sys.argv
 
 def setup_ai(data):
+    page = ft.context.page
+    dialog = ft.AlertDialog(
+        title=ft.Text("Request to run command"),
+    )
+    @tools.unerror(False)
+    async def onrun(command="", at="", background=False):
+        f = asyncio.Future()
+        def fgive(task):
+            if task.cancelled():
+                f.cancel()
+            elif (exc := task.exception()) is not None:
+                f.set_exception(exc)
+            else:
+                f.set_result(task.result())
+        def ok(e):
+            page.pop_dialog()
+            if background:
+                page.run_task(tools.run_command, command, at)
+                f.set_result("process spawned")
+                return
+            cf = page.run_task(tools.run_command, command, at)
+            cf.add_done_callback(fgive)
+        async with tools.alock:
+            dialog.on_dismiss = lambda e: f.done() or f.set_result("User closed confirmation dialog.")
+            dialog.content = ft.Text("AI wants to run command %s at %s\nWould you like to continue?" % (command, at or os.getcwd()))
+            dialog.actions = [ft.Button(content="YES", on_click=ok), ft.Button(content="NO", on_click=lambda e: page.pop_dialog() or f.set_result("User denied command execution."))]
+            page.show_dialog(dialog)
+            return await f
     ai = tools.AsyncAI(data, sysprompt)
     ai.assignTool(tools.grab, "fetch", "Use this instead cURL, wget, fetches things", {"url": {"type": "string", "description": "URL to fetch"}, "params": {"type": "object", "description": "Parameters in URL so you don't need any custom params on URL"}, "method": {"type": "string", "description": "Methods from POST/PUT/DELETE/GET"}, "json": {"type": "object", "description": "On POST, give this as JSON formatted POST request"}}, ["url"])
     ai.assignTool(tools.instantSearch, "ddg_search", "Instant search API by duckduckgo, for quick lookups.", {"q": {"type": "string", "description": "Search query"}}, ["q"]) if tools.APPCONFIG.get("instantSearch", True) and tools.APPCONFIG.get("searching", True) else None
     ai.assignTool(tools.deepsearch, "deepsearch", "Deep search API by LangSearch, for deep and unfindable questions.", {"q": {"type": "string", "description": "Search query"}}, ["q"]) if not tools.APPCONFIG.get("instantSearch", True) and tools.APPCONFIG.get("searching", True) else None
     ai.assignTool(tools.get_current_time, "currentutctime", "Get latest UTC time", {"local": {"type": "boolean", "description": "Use true"}}, ["local"])
-    ai.assignTool(tools.run_command, "run_command", "Runs a shell command.", {"command": {"type": "string", "description": "The command (not cmd argument!!!!)"}, "at": {"type": "string", "description": "Directory to run on"}}, ["command"])
+    ai.assignTool(onrun, "run_command", "Runs a shell command. Output is not directly visible to user. Give string instead list/array, we need \"echo 'this_example'\" not ['echo', 'this_example'].", {"command": {"type": "string", "description": "The command (not cmd argument!!!!)"}, "at": {"type": "string", "description": "Directory to run on"}, "background": {"type": "boolean", "description": "Will run on background or foreground? Default is false (foreground) and does not give stderr/stdout/returncode on background ones"}}, ["command"])
     return ai
 
 def chatElem(page: ft.Page, dlg):
@@ -130,6 +159,7 @@ def loadChatFromJson(page, name, dlg):
 
 
 async def bping():
+    tools.ping_runs = True
     while True:
         await tools.loop()
         if tools.VERBOSE:
@@ -137,7 +167,7 @@ async def bping():
         await asyncio.sleep(13.75 * 60)
 
 def main(page: ft.Page):
-    page.run_task(bping)
+    page.run_task(bping) if tools.ping_runs else None
     page.title = "TermiAI - Your personal helper to run commands for you"
     ftapi.setSize(page, (960, 540), False)
     dlg = ft.AlertDialog(
@@ -194,6 +224,39 @@ def main(page: ft.Page):
         ],
         value="1" if not tools.APPCONFIG.get("searching", True) else ("2" if tools.APPCONFIG.get("instantSearch", True) else "3")
     )
+    async def on_export(e):
+        path = await ft.FilePicker().save_file(
+            file_name=f"termiai-backup-{int(time.time())}.zip",
+            allowed_extensions=["zip"]
+        )
+        if path:
+            tools.export_backup(path)
+
+    async def on_import(e):
+        files = await ft.FilePicker().pick_files(
+            allow_multiple=False,
+            allowed_extensions=["zip"]
+        )
+        if files:
+            tools.import_backup(files[0].path)
+            page.controls.clear()
+            main(page)
+
+    backup_row = ft.Row(
+        controls=[
+            ft.Button(
+                content="Export Backup (.zip)",
+                icon=ft.Icons.UPLOAD_FILE,
+                on_click=on_export,
+            ),
+            ft.Button(
+                content="Restore Backup (.zip)",
+                icon=ft.Icons.DOWNLOAD,
+                on_click=on_import,
+            ),
+        ],
+    )
+
     sideItems = [{
             "items": [
                 ft.Text("Welcome to TermiAI!", size=30),
@@ -208,7 +271,7 @@ def main(page: ft.Page):
                 darkTog,
                 choose_server,
                 choose_search,
-                
+                backup_row
             ],
             "label": "Settings",
             "icon": ft.Icons.SETTINGS
