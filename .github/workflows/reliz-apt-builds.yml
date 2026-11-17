@@ -41,7 +41,7 @@ jobs:
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
 
       - name: Build the app
-        run: flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+        run: cd main-repo && flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
 
       - name: Package .deb using linux-template
         id: pkg
@@ -92,6 +92,8 @@ jobs:
           Date: $(date -Ru)
           EOF
           apt-ftparchive release . >> Release
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f *.deb Packages Packages.gz Release
           git commit -m "Release ${{ steps.ver.outputs.version }}" || echo "No changes to commit"
           git push origin apt-repos
