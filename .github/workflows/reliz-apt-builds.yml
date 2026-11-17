@@ -73,27 +73,38 @@ jobs:
           ref: apt-repos
           path: apt-repo
 
-      - name: Update APT metadata & push to apt-repos
+      - name: Import GPG Key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')
+          echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
+
+      - name: Update APT metadata, Sign & Push to apt-repos
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           DEB_NAME="${{ steps.pkg.outputs.deb_name }}"
           cp "${DEB_NAME}" apt-repo/
           cd apt-repo
-          ls -t termiai-linux-*-amd64.deb | tail -n +6 | xargs -r rm --
+
+          ls -t termiai-linux-*-amd64.deb | tail -n +8 | xargs -r rm --
+
           dpkg-scanpackages --multiversion . > Packages
           gzip -k -f Packages
-          cat <<EOF > Release
-          Origin: TermiAI
-          Label: TermiAI
-          Suite: stable
-          Codename: stable
-          Architectures: amd64
-          Components: main
-          Description: Official APT repository for TermiAI
-          Date: $(date -Ru)
-          EOF
+
+          printf "Origin: TermiAI\nLabel: TermiAI\nSuite: stable\nCodename: stable\nArchitectures: amd64\nComponents: main\nDescription: Official APT repository for TermiAI\nDate: %s\n" "$(date -Ru)" > Release
           apt-ftparchive release . >> Release
+
+          gpg --batch --yes --export "$GPG_KEY_ID" > termiai.gpg
+
+          rm -f InRelease Release.gpg
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --default-key "$GPG_KEY_ID" --clearsign -o InRelease Release
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --default-key "$GPG_KEY_ID" -abs -o Release.gpg Release
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -f *.deb Packages Packages.gz Release
-          git commit -m "Release ${{ steps.ver.outputs.version }}" || echo "No changes to commit"
+          git add -f *.deb Packages Packages.gz Release InRelease Release.gpg termiai.gpg
+          git commit -m "Release ${{ steps.ver.outputs.version }} (GPG Signed)" || echo "No changes to commit"
           git push origin apt-repos
