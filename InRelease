@@ -1,0 +1,35 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Origin: TermiAI
+Label: TermiAI
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: Official APT repository for TermiAI
+Date: Tue, 17 Nov 2026 19:04:25 +0000
+Date: Tue, 17 Nov 2026 19:04:25 +0000
+MD5Sum:
+ 126f869233cc7d1a889f887eab873a07             1552 Packages
+ ee1a6ced204868fea56ec0cad536ac43              621 Packages.gz
+ 588f5d63a108086d84bfb41fe2f28070              225 Release
+SHA1:
+ d32aa594e3fc6ce6f490d2d2f4369d6c006b8467             1552 Packages
+ cf1d0c4342be3d1997c645fa093f89bfd0d49106              621 Packages.gz
+ fa59507460913f21c257c9139d8d5b8ed96d4017              225 Release
+SHA256:
+ 1882386e7d77bcc5a129d3d76f641db6eba0ce6752d687707a0a94ddc9b110bc             1552 Packages
+ 2aad204f0fec0cd2b2633a51591f9c61a2d7fc2b35c09c03cbad3d4e66eb06f1              621 Packages.gz
+ 669026d228f3a024e60cd572edb950423edb6afa5b3c712cf516a43b47e192ce              225 Release
+SHA512:
+ 47a64a67c2cd8dbf5e797e9de4ef22a0c7e08a7cf03dcbb5ea8787da021c09d626b5cbf8fee5650945871a813585a5a6e8690e41b7b71c465cf39644032f1d32             1552 Packages
+ eb0b3cd4c260ce999e583e5ea69ac5c3d757c646b5d80cd672d49567c96ed079bd4eaa2d63f3ca263f3af643c7bcfce5081a31bd5c7b54d860c9609a88f91385              621 Packages.gz
+ 74f89f892b3bab022ec1b5db29ee560eccd599bd9785991ad6b9dc988cee82af97b93b6847d76af2d9c34dac36676e16fb985a906827acd63b115c5fd68ea01f              225 Release
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYIAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCavylOQAKCRDpIkWH4hgk
+BkbtAP93WA6vIsCRD7hOVmGSQQYauYrarmI9QZaG/82Cn7OqXwEAqjktg+nWqjiA
+HK4rWCNsqbMj1TIWm4z1Vm765ITFRQw=
+=SYyM
+-----END PGP SIGNATURE-----
