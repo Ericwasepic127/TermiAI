@@ -18,3 +18,23 @@ Description: Your personal AI assistant to help terminal
 Vcs-Browser: https://github.com/ericwasepic127/termiai
 Vcs-Git: https://github.com/ericwasepic127/termiai.git
 
+Package: TermiAI
+Version: 1.1.0
+Architecture: amd64
+Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
+Depends: python3, python3-pip, git
+Filename: ./termiai-linux-1.1.0-amd64.deb
+Size: 29786786
+MD5sum: 1f0baa53efdef7152229e85135653e13
+SHA1: d0a0bb10a680e5c938c8dedce56435370dd704a9
+SHA256: d4fa1dd76d4228a8ec2cf6bad14a6e3e27e2b451932d68a2693ab98fd65ba649
+Section: utils
+Priority: optional
+Homepage: https://github.com/ericwasepic127/termiai
+Description: Your personal AI assistant to help terminal
+ TermiAI is a Flet-based GUI AI assistant that helps users run
+ terminal commands without fear. It supports tool calling, web
+ search, and a custom agent loop.
+Vcs-Browser: https://github.com/ericwasepic127/termiai
+Vcs-Git: https://github.com/ericwasepic127/termiai.git
+
