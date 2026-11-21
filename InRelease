@@ -1,35 +1,34 @@
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Hash: SHA512
 
-Origin: TermiAI
-Label: TermiAI
-Suite: stable
+Architectures: amd64 arm64
 Codename: stable
-Architectures: amd64
 Components: main
+Date: Sat, 21 Nov 2026 14:58:49 +0000
 Description: Official APT repository for TermiAI
-Date: Tue, 17 Nov 2026 19:04:25 +0000
-Date: Tue, 17 Nov 2026 19:04:25 +0000
+Label: TermiAI
+Origin: TermiAI
+Suite: stable
 MD5Sum:
- 126f869233cc7d1a889f887eab873a07             1552 Packages
- ee1a6ced204868fea56ec0cad536ac43              621 Packages.gz
- 588f5d63a108086d84bfb41fe2f28070              225 Release
+ e67cb037131c9957f2ef69c8cca1bb03             2327 Packages
+ 4bb87336eaa3dafada21af32ff10cd9f              732 Packages.gz
+ 5d73fbd228190b04cd2fac3e706dc07c              193 Release
 SHA1:
- d32aa594e3fc6ce6f490d2d2f4369d6c006b8467             1552 Packages
- cf1d0c4342be3d1997c645fa093f89bfd0d49106              621 Packages.gz
- fa59507460913f21c257c9139d8d5b8ed96d4017              225 Release
+ 919995a9457dcf13224168cee1aab16adf644fc3             2327 Packages
+ 5d561d39e0e4e4f48d121240a8751d54c20f7ff6              732 Packages.gz
+ fb4dc3d266e0badaeaa1a31e362829b263773055              193 Release
 SHA256:
- 1882386e7d77bcc5a129d3d76f641db6eba0ce6752d687707a0a94ddc9b110bc             1552 Packages
- 2aad204f0fec0cd2b2633a51591f9c61a2d7fc2b35c09c03cbad3d4e66eb06f1              621 Packages.gz
- 669026d228f3a024e60cd572edb950423edb6afa5b3c712cf516a43b47e192ce              225 Release
+ 4168f282caa45d9cbcfcc1bdbd378aa860608d35df0d6d2dda0c5943c90a31c9             2327 Packages
+ 50e7074fb51d5000bd030ce6fc9460f98acf71f3d2dc99d2f4fb609869db8df9              732 Packages.gz
+ b39cea9bdd7806ac94b43aea54a204c81114e8251a7a33451dd07e0be9e47478              193 Release
 SHA512:
- 47a64a67c2cd8dbf5e797e9de4ef22a0c7e08a7cf03dcbb5ea8787da021c09d626b5cbf8fee5650945871a813585a5a6e8690e41b7b71c465cf39644032f1d32             1552 Packages
- eb0b3cd4c260ce999e583e5ea69ac5c3d757c646b5d80cd672d49567c96ed079bd4eaa2d63f3ca263f3af643c7bcfce5081a31bd5c7b54d860c9609a88f91385              621 Packages.gz
- 74f89f892b3bab022ec1b5db29ee560eccd599bd9785991ad6b9dc988cee82af97b93b6847d76af2d9c34dac36676e16fb985a906827acd63b115c5fd68ea01f              225 Release
+ c222038255c48adc4a36d659399d5ec70fc8b481edf9383bf11f31d97d3419693e8a4568734c56dc4b2263877c0939afc529df155a28472e13d90b4230f9ddb6             2327 Packages
+ 4d47da94287daca25e388eec164c85df6bd30e0f4babad0ab74b76fa082ffb1c4a83a8b109f9f1e34a3da344b2382438a38255a264ab0e44b8364b63c97e44b2              732 Packages.gz
+ 89a69d8414d260b5a066a5220ad669db1e4069123a8a9c1b7af629a3aac63f1ccb288ad5ec4c2847986a969e76027954f9036efa7433148ab2c4aa9b30432576              193 Release
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYIAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCavylOQAKCRDpIkWH4hgk
-BkbtAP93WA6vIsCRD7hOVmGSQQYauYrarmI9QZaG/82Cn7OqXwEAqjktg+nWqjiA
-HK4rWCNsqbMj1TIWm4z1Vm765ITFRQw=
-=SYyM
+iHUEARYKAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCawGxqQAKCRDpIkWH4hgk
+BjO9AQDfBeriyvgXMw/cqyV8RZFRr2QPoPHa51wQgOMhh8hyBAD+MB5x4SLYU8d1
++xvaU+hehiqZgmU0/cJ95Eo52x8yMAs=
+=ByhW
 -----END PGP SIGNATURE-----

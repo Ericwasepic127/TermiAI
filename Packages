@@ -24,10 +24,30 @@ Architecture: amd64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: python3, python3-pip, git
 Filename: ./termiai-linux-1.1.0-amd64.deb
-Size: 29830974
-MD5sum: 6a0460eba4dc6ed963ff239144413d7a
-SHA1: 5fef5d273e601fa973f8b9ff907adb8c27301538
-SHA256: ef1eeff4ad042536332eb8000145cc0eaf0df61e9b649e2b26f0cc502a006572
+Size: 29836382
+MD5sum: d29dc16bcba7830a6846a09580bc3c12
+SHA1: f8a9fef42e60c97f30ada3a5903098db0f32a1cf
+SHA256: 0ef06d2e644d07c9eb4332be0184f8a5ae01aeb1d61be925da81528553cd272f
+Section: utils
+Priority: optional
+Homepage: https://github.com/ericwasepic127/termiai
+Description: Your personal AI assistant to help terminal
+ TermiAI is a Flet-based GUI AI assistant that helps users run
+ terminal commands without fear. It supports tool calling, web
+ search, and a custom agent loop.
+Vcs-Browser: https://github.com/ericwasepic127/termiai
+Vcs-Git: https://github.com/ericwasepic127/termiai.git
+
+Package: TermiAI
+Version: 1.1.0
+Architecture: amd64
+Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
+Depends: python3, python3-pip, git
+Filename: ./termiai-linux-1.1.0-arm64.deb
+Size: 27727696
+MD5sum: 31d936e1e35c230f8e530193d41c7093
+SHA1: b8d4cd941f26ca5249f7333a994362e31ffff470
+SHA256: 10132796de4ef7dc7d747584e758037933091da55303a9294f35cf020ba5f77d
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
