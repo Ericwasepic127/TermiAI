@@ -70,7 +70,7 @@ jobs:
 
       - uses: actions/upload-artifact@v6
         with:
-          name: debpacks-${{ matrix.arch }}
+          name: debpack-${{ matrix.arch }}
           path: debpacks/
       - name: Attach .deb to GitHub Release
         if: github.event_name == 'release'
@@ -85,11 +85,11 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: debpack-arm64
-          path: debpacks-arm64/
+          path: debpack-arm64/
       - uses: actions/download-artifact@v6
         with:
           name: debpack-amd64
-          path: debpacks-amd64/
+          path: debpack-amd64/
       
       - name: Checkout existing apt-repos branch
         uses: actions/checkout@v7
@@ -105,8 +105,8 @@ jobs:
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')
           echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
-          cp -r debpacks-arm64/* apt-repo/
-          cp -r debpacks-amd64/* apt-repo/
+          cp -r debpack-arm64/* apt-repo/
+          cp -r debpack-amd64/* apt-repo/
           cd apt-repo
 
           ls -t *.deb | tail -n +8 | xargs -r rm --
