@@ -1,9 +1,20 @@
 #!/bin/bash
 set -e
 
+if [ "${EUID:-$(id -u)}" -ne 0 ]; then
+  echo "[WARNING]: Not running as root"
+fi
+
+echo "Keyring setup"
 curl -fsSL https://termiai-apt.onrender.com/termiai.gpg | tee /usr/share/keyrings/termiai.gpg > /dev/null
 
+echo "Adding source"
 echo "deb [signed-by=/usr/share/keyrings/termiai.gpg] https://termiai-apt.onrender.com stable/" | tee /etc/apt/sources.list.d/termiai.list
 
+echo "Updating repositories"
 apt update
-apt install -y termiai
+
+echo "Installing TermiAI ..."
+apt install termiai
+
+echo "Done!"
