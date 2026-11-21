@@ -1,11 +1,10 @@
 Package: TermiAI
-Version: 1.0.12
+Version: 1.0.0
 Section: utils
 Vcs-Git: https://github.com/ericwasepic127/termiai.git
 Vcs-Browser: https://github.com/ericwasepic127/termiai
 Priority: optional
 Architecture: amd64
-Depends: python3, python3-pip, git 
 Homepage: https://github.com/ericwasepic127/termiai
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Description: Your personal AI assistant to help terminal
