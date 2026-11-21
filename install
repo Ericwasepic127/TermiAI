@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+curl -fsSL https://termiai-apt.onrender.com/termiai.gpg | sudo tee /usr/share/keyrings/termiai.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/termiai.gpg] https://termiai-apt.onrender.com stable/" | sudo tee /etc/apt/sources.list.d/termiai.list
+
+sudo apt update
+sudo apt install -y termiai
