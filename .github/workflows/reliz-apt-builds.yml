@@ -62,6 +62,7 @@ jobs:
           mkdir -p linux-template/usr/bin
           ln -sf /usr/lib/TermiAI/Terminal-Assistant-Interface linux-template/usr/bin/termiai
           sed -i "s/^Version:.*/Version: ${VER}/" linux-template/DEBIAN/control
+          sed -i "s/^Architecture:.*/Architecture: ${{ matrix.arch }}/" linux-template/DEBIAN/control
           chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
           chmod 644 linux-template/DEBIAN/control
           mkdir ../debpacks
