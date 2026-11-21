@@ -13,9 +13,15 @@ permissions:
   contents: write
 
 jobs:
-  build-and-publish:
-    runs-on: ubuntu-22.04
-
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: amd64
+          - os: ubuntu-22.04-arm
+            arch: arm64
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Determine Version
         id: ver
@@ -48,7 +54,7 @@ jobs:
         run: |
           cd main-repo
           VER="${{ steps.ver.outputs.version }}"
-          DEB_NAME="termiai-linux-${VER}-amd64.deb"
+          DEB_NAME="termiai-linux-${VER}-${{ matrix.arch }}.deb"
           rm -rf linux-template/usr/lib/TermiAI/*
           mkdir -p linux-template/usr/lib/TermiAI
           cp -r build/linux/* linux-template/usr/lib/TermiAI/
@@ -58,22 +64,40 @@ jobs:
           sed -i "s/^Version:.*/Version: ${VER}/" linux-template/DEBIAN/control
           chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
           chmod 644 linux-template/DEBIAN/control
-          dpkg-deb --root-owner-group --build linux-template "../${DEB_NAME}"
+          mkdir ../debpacks
+          dpkg-deb --root-owner-group --build linux-template "../debpacks/$DEB_NAME"
           echo "deb_name=${DEB_NAME}" >> $GITHUB_OUTPUT
 
+      - uses: actions/upload-artifact@v6
+        with:
+          name: debpacks-${{ matrix.arch }}
+          path: debpacks/
       - name: Attach .deb to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.pkg.outputs.deb_name }}
 
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: debpack-arm64
+          path: debpacks-arm64/
+      - uses: actions/download-artifact@v6
+        with:
+          name: debpack-amd64
+          path: debpacks-amd64/
+      
       - name: Checkout existing apt-repos branch
         uses: actions/checkout@v7
         with:
           ref: apt-repos
           path: apt-repo
 
-      - name: Import GPG Key
+      - name: Do publishing
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -81,23 +105,25 @@ jobs:
           echo "$GPG_PRIVATE_KEY" | gpg --batch --import
           KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')
           echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
-
-      - name: Update APT metadata, Sign & Push to apt-repos
-        env:
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          DEB_NAME="${{ steps.pkg.outputs.deb_name }}"
-          cp "${DEB_NAME}" apt-repo/
+          cp -r debpacks-arm64/* apt-repo/
+          cp -r debpacks-amd64/* apt-repo/
           cd apt-repo
 
-          ls -t termiai-linux-*-amd64.deb | tail -n +8 | xargs -r rm --
+          ls -t *.deb | tail -n +8 | xargs -r rm --
 
           dpkg-scanpackages --multiversion . > Packages
           gzip -k -f Packages
 
-          printf "Origin: TermiAI\nLabel: TermiAI\nSuite: stable\nCodename: stable\nArchitectures: amd64\nComponents: main\nDescription: Official APT repository for TermiAI\nDate: %s\n" "$(date -Ru)" > Release
-          apt-ftparchive release . >> Release
-
+          apt-ftparchive \
+            -o APT::FTPArchive::Release::Origin="TermiAI" \
+            -o APT::FTPArchive::Release::Label="TermiAI" \
+            -o APT::FTPArchive::Release::Suite="stable" \
+            -o APT::FTPArchive::Release::Codename="stable" \
+            -o APT::FTPArchive::Release::Architectures="amd64 arm64" \
+            -o APT::FTPArchive::Release::Components="main" \
+            -o APT::FTPArchive::Release::Description="Official APT repository for TermiAI" \
+            release . > Release
+            
           gpg --batch --yes --export "$GPG_KEY_ID" > termiai.gpg
 
           rm -f InRelease Release.gpg
@@ -106,5 +132,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -f *.deb Packages Packages.gz Release InRelease Release.gpg termiai.gpg
-          git commit -m "Release ${{ steps.ver.outputs.version }} (GPG Signed)" || echo "No changes to commit"
+          git commit -m "Release (GPG Signed)" || echo "No changes to commit"
           git push origin apt-repos
