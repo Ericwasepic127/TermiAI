@@ -1,7 +1,7 @@
 Package: TermiAI
 Version: 1.0.0
 Section: utils
-Depends: libgtk-3-0 libasound2 libsecret-1-0 libunwind8 mpv libmpv-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav
+Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
 Vcs-Git: https://github.com/ericwasepic127/termiai.git
 Vcs-Browser: https://github.com/ericwasepic127/termiai
 Priority: optional
