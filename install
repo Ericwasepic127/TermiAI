@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -o pipefail
 
 if [ "${EUID:-$(id -u)}" -ne 0 ]; then
   echo "[WARNING]: Not running as root"
