@@ -20,6 +20,7 @@ URL = None
 BASEAIURL = "https://ai-proxy-%s.onrender.com/"
 VERBOSE = False
 ping_runs = False
+alock = asyncio.Lock()
 THERROR = """<!doctype html>
 <html lang=en>
 <title>429 Too Many Requests</title>
@@ -250,7 +251,10 @@ def append_message(role, message, var, raw=False):
 async def post(data):
     async with httpx.AsyncClient() as client:
         try:
-            r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers={"Content-Type": "application/json"}, timeout=120, follow_redirects=True)
+            h = {"Content-Type": "application/json"}
+            if KEY:
+                h["Authorization"] = "Bearer " + KEY
+            r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers=h, timeout=120, follow_redirects=True)
             m = r.json()
             if isinstance(m, list):
                 try:
@@ -407,6 +411,18 @@ class MemJson(dict):
     def clone(self):
         return MemJson(self)
 
+class Object:
+    """Object designed to persist through accesses without global mess"""
+    def __init__(self, saveobj=None, clear=None):
+        self.obj = saveobj or clear
+        self._cleared = clear
+    def get(self):
+        return getattr(self, "obj", None)
+    def set(self, value):
+        setattr(self, "obj", value)
+    def clear(self):
+        setattr(self, "obj", getattr(self, "_cleared", None))
+
 class AsyncAI:
     def __init__(self, jsonobj: LiveJson, sysprompt):
         self.data = jsonobj
@@ -493,14 +509,16 @@ DEFAULTDATA = {
     "dark": False,
     "api": "x",
     "search": True,
-    "custom": False,
+    "customUrl": "",
+    "customUrlApiKey": "",
     "instantSearch": True,
     "maxToolLoop": 5,
 }
 
 CHATJSON = LiveJson(CHATS)
 APPCONFIG = LiveJson(JOIN(CONFIGS, "appcfg.json"), default_data=DEFAULTDATA)
-URL = APPCONFIG.get("api", BASEAIURL % "x") if APPCONFIG.get("custom") else BASEAIURL % APPCONFIG.get("api", "x")
+URL = APPCONFIG.get("customUrl", BASEAIURL % "x") or BASEAIURL % "x" if APPCONFIG.get("customUrl") else BASEAIURL % APPCONFIG.get("api", "x")
+KEY = APPCONFIG.get("customUrlApiKey")
 INSTANTSEARCH = APPCONFIG.get("instantSearch", True)
 
 if __name__ == '__main__':

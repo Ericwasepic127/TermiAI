@@ -2,6 +2,7 @@
 # Made by @Ericwasepic127
 
 import flet as ft
+from termilib import tools
 
 def setSize(page, size, resizable=True):
     w, h = size
@@ -168,9 +169,11 @@ def shell(page, do, waitmsg="Please wait..."):
 
     return [ft.Container(content=log, expand=True), ft.Row([inp, send_btn])]
 
-def shellv2(page, do, waitmsg="Please wait..."):
+def shellv2(page, do, waitmsg="Please wait...", pobj=None):
+    change = tools.Object(clear=lambda x: None)
+    if pobj is not None and type(pobj) == tools.Object:
+        pobj.set(change)
     url_launcher = ft.UrlLauncher()
-
     log = ft.Column(auto_scroll=True, spacing=12, expand=True, scroll=ft.ScrollMode.AUTO)
     log.flag = False
     inp = ft.TextField(expand=True, autofocus=True, multiline=True, min_lines=1, max_lines=5, shift_enter=True)
@@ -186,7 +189,7 @@ def shellv2(page, do, waitmsg="Please wait..."):
                 log.flag = False
             log.controls.append(
                 ft.Markdown(
-                    value=f"**You:** {msg}",
+                    value=f"**You:** {msg.replace('\n', '\n\n')}",
                     selectable=True,
                     on_tap_link=handle_link
                 )
@@ -208,7 +211,7 @@ def shellv2(page, do, waitmsg="Please wait..."):
             log.controls.append(ft.Divider(thickness=1))
         log.controls.append(
             ft.Markdown(
-                value=f"**You:** {q}",
+                value=f"**You:** {q.replace('\n', '\n\n')}",
                 selectable=True,
                 on_tap_link=handle_link
             )
@@ -217,13 +220,19 @@ def shellv2(page, do, waitmsg="Please wait..."):
         log.controls.append(out)
         send_btn.disabled = True
         inp.disabled = True
+        def changer(v):
+            out.value = v
+            page.update()
+        change.set(changer)
         page.update()
         response_text = await do(q)
         out.value = response_text
         out.selectable = True
         send_btn.disabled = False
         inp.disabled = False
+        page.update()
         await inp.focus()
+        change.clear()
         page.update()
     inp.on_submit = lambda e: page.run_task(send, e)
     send_btn.on_click = lambda e: page.run_task(send, e)
