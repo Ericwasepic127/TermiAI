@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.scripts]
-termiai = "termiai:ftmain"
+termiai-source = "termiai:ftmain"
 termiai-factory-reset = "termiai.clean:main"
 
 [tool.flet]
