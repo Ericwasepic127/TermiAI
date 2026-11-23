@@ -23,6 +23,8 @@ jobs:
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Install APT indexing tools
+        run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
       - name: Determine Version
         id: ver
         run: |
@@ -83,6 +85,23 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Install APT indexing tools
+        run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
+      - uses: actions/checkout@v7
+        with:
+          path: main-repo
+      - name: Build the source pack
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW_TAG="${{ github.event.release.tag_name }}"
+            CLEAN_VER="${RAW_TAG#v}"
+          else
+            CLEAN_VER="${{ github.event.inputs.version }}"
+          fi
+          mkdir -p linux-sp
+          cp -r main-repo/linux-source-pack/* linux-sp/
+          sed -i "s/^Version:.*/Version: ${CLEAN_VER}/" linux-sp/DEBIAN/control
+          dpkg-deb --root-owner-group --build linux-sp "termiai-source-pack.deb"
       - uses: actions/download-artifact@v6
         with:
           name: debpack-arm64
@@ -97,9 +116,6 @@ jobs:
         with:
           ref: apt-repos
           path: apt-repo
-      - name: Install APT indexing tools
-        run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
-
       - name: Do publishing
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
@@ -110,6 +126,7 @@ jobs:
           #echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
           cp -r debpack-arm64/* apt-repo/
           cp -r debpack-amd64/* apt-repo/
+          cp -r termiai-source-pack.deb apt-repo/
           cd apt-repo
 
           ls -t *.deb | tail -n +8 | xargs -r rm --
