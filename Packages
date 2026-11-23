@@ -20,14 +20,14 @@ Vcs-Git: https://github.com/ericwasepic127/termiai.git
 
 Package: TermiAI
 Version: 1.1.0
-Architecture: amd64
+Architecture: arm64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
-Filename: ./termiai-linux-1.1.0-amd64.deb
-Size: 29836440
-MD5sum: aec038ecc115ab889963a5a0158ca83b
-SHA1: 6ced51f8b0bd850821ec16832bdf4175ff679bbc
-SHA256: 182d3319608ea5995273bd7e2d27f3c048385211db8dff934bd85518cb79a84c
+Filename: ./termiai-linux-1.1.0-arm64.deb
+Size: 27727988
+MD5sum: d98c854e7f70ca2ea275bcabf68fcc59
+SHA1: e7f99e6693759797058597ca0d0c9e1a783e4c8a
+SHA256: e2e862d245ff7bcc36b8f159556b18bb0b21cf09963657be71552c76f00deaa8
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
@@ -40,14 +40,14 @@ Vcs-Git: https://github.com/ericwasepic127/termiai.git
 
 Package: TermiAI
 Version: 1.1.0
-Architecture: arm64
+Architecture: amd64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
-Filename: ./termiai-linux-1.1.0-arm64.deb
-Size: 27727988
-MD5sum: d98c854e7f70ca2ea275bcabf68fcc59
-SHA1: e7f99e6693759797058597ca0d0c9e1a783e4c8a
-SHA256: e2e862d245ff7bcc36b8f159556b18bb0b21cf09963657be71552c76f00deaa8
+Filename: ./termiai-linux-1.1.0-amd64.deb
+Size: 29836440
+MD5sum: aec038ecc115ab889963a5a0158ca83b
+SHA1: 6ced51f8b0bd850821ec16832bdf4175ff679bbc
+SHA256: 182d3319608ea5995273bd7e2d27f3c048385211db8dff934bd85518cb79a84c
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
