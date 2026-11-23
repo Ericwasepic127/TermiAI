@@ -4,31 +4,31 @@ Hash: SHA512
 Architectures: amd64 arm64
 Codename: stable
 Components: main
-Date: Mon, 23 Nov 2026 02:08:15 +0000
+Date: Mon, 23 Nov 2026 03:12:00 +0000
 Description: Official APT repository for TermiAI
 Label: TermiAI
 Origin: TermiAI
 Suite: stable
 MD5Sum:
- f2098b04c217fcd0c28368fd48219c51             2703 Packages
- f4d09f5c48997b6ff660e52605d46249              830 Packages.gz
- 719a60a101beffbf5521fc2d80e317cb              193 Release
+ d6e1f11ae9b970e8e711856e26b3180f             2697 Packages
+ 0006929c53ec5062b1f335d34f867a2a              837 Packages.gz
+ b630367700e69112fa54c2e151d6c6d7              193 Release
 SHA1:
- 714a1b4c2f973a3ff5a15e8ee19007d54acaf970             2703 Packages
- 45f668095d1082d3510cbca1ad07bee5e6898845              830 Packages.gz
- 5eb046e0e202819d2733b77566b6f3bcab05edae              193 Release
+ 6801967712aa2117d91fc6e7e2d66b09e7d6b747             2697 Packages
+ e34cccdf35d94e9a97aa583fd412dcf1dad3576e              837 Packages.gz
+ 7874347774ab2674915776b530db945dfd3816b6              193 Release
 SHA256:
- e965c7c14f8b0f29fe1155df2281e4c41b401cf922229cd1d9451a118629794c             2703 Packages
- e9f744c1ff6c694fcdc176f17a147002c37c0daffe19dbba312832a0b1a2a7ce              830 Packages.gz
- 24dedd14660d711afadaadcadc20fbf04586f26c820c10326825f2b374e587d6              193 Release
+ b14c8bd30e16563f19482b3f453d5d1f7ed180cf5712b6d3aeb3e6c8dbae4190             2697 Packages
+ b127ecb68c504890a01401c87d50f2fd3680cb5bc4000f070e63e3b7d8d9dcb2              837 Packages.gz
+ a27134b24a42922ae3c47ac5c56e28c2f2b070fb97b85dbfa8cda87bc653426b              193 Release
 SHA512:
- 97bbfe1791a6f433ce95b656d2db95eb195cd194da46ea17d95b814901857879728bb065e54238fd1bf17cade13b12aff8b06c21a54429b14a1a20f8858ac9d3             2703 Packages
- d7991b549b76af3ce1b162fecfe47a345250fdd66bb2b4f85eca965751cf61bb8b9cdaeda5dc914a887d9deabc3d60688cbbea196780bf2239f4dbe28930f375              830 Packages.gz
- cc07d16955212f5460ca811e795193d335bea1032b651e937fefb16a01faf5d12b1f811d25f52db8275b500021f75a581186134f968b295675cb847a91e56f88              193 Release
+ b2c2aee3d276f857728607f3659a4c7de749db6e8c463a47176b94c083d840272a53641c0d8a2387550448350c5198570b68deeb48ecb85000fe80a5578f1da1             2697 Packages
+ 8353c51527e61c7b4c6d4c5a277eb45bc7fdf06a5f413286302b025f5b92799f0297586a0f34927ee6ac002c6ae62b277c702ff7558b47fa7433b7b677cc39b3              837 Packages.gz
+ baa9d01ef8a07cd359facbc86765ac96967ffcbed976f1976ab68f0fc945bb9142272eeef2d609296ba2f38a6a72766e3404348c8755e27d173ade693cd70552              193 Release
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCawOgDwAKCRDpIkWH4hgk
-BsY3AP9t1WAgUcv8IWRCTnaZ1Wg0xk4PlGXisgcDwPAuiWEmTQD+O+IMssp1GRrJ
-xBfChacZf5XlcIZucjm7POosKM05xQk=
-=KJ33
+iHUEARYKAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCawOvAAAKCRDpIkWH4hgk
+Bv+QAP46v7fS4M4O4N7hotzZJe0xHbsmop+a9vbW8zm+kfj9FwD/XLvv+ZT0wn+8
+CJTk2e9gcjgtgRmZzzVvosUrBZHtEgU=
+=Hqwl
 -----END PGP SIGNATURE-----
