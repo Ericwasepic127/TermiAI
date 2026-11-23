@@ -1,0 +1,55 @@
+name: Rebuild APT repo
+
+on: workflow_dispatch
+
+jobs:
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout existing apt-repos branch
+        uses: actions/checkout@v7
+        with:
+          ref: apt-repos
+          path: apt-repo
+      - name: Install APT indexing tools
+        run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
+
+      - name: Do publishing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')
+          #echo "GPG_KEY_ID=$KEY_ID" >> $GITHUB_ENV
+          #cp -r debpack-arm64/* apt-repo/
+          #cp -r debpack-amd64/* apt-repo/
+          cd apt-repo
+
+          ls -t *.deb | tail -n +8 | xargs -r rm --
+
+          dpkg-scanpackages --multiversion . > Packages
+          gzip -k -f Packages
+
+          apt-ftparchive \
+            -o APT::FTPArchive::Release::Origin="TermiAI" \
+            -o APT::FTPArchive::Release::Label="TermiAI" \
+            -o APT::FTPArchive::Release::Suite="stable" \
+            -o APT::FTPArchive::Release::Codename="stable" \
+            -o APT::FTPArchive::Release::Architectures="amd64 arm64" \
+            -o APT::FTPArchive::Release::Components="main" \
+            -o APT::FTPArchive::Release::Description="Official APT repository for TermiAI" \
+            release . > Release
+            
+          gpg --batch --yes --export "$KEY_ID" > termiai.gpg
+
+          rm -f InRelease Release.gpg
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --default-key "$KEY_ID" --clearsign -o InRelease Release
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --default-key "$KEY_ID" -abs -o Release.gpg Release
+          git config user.name "TermiAI-builder[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f *.deb Packages Packages.gz Release InRelease Release.gpg termiai.gpg
+          git commit -m "Release (GPG Signed)" || echo "No changes to commit"
+          git push origin apt-repos
