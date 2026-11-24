@@ -27,6 +27,7 @@ jobs:
           pip install flet[all]
           flet build windows --no-compile-packages --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
           xcopy "build\windows" "..\windows" /E /I
+          copy "assets\icon.ico" "..\windows" /E /I
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
