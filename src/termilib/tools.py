@@ -289,14 +289,16 @@ async def instantSearch(**kwargs):
             r = await client.get("https://api.duckduckgo.com/", headers={"Content-Type": "application/json"}, timeout=120, params={"format": "json", "q": data})
             m = r.json()
         except json.JSONDecodeError:
-            m = {"error": {"message": "Decode failure on response JSON: " + r.text}}
+            m = {"error": "Decode failure on response JSON: " + r.text}
         except (BaseException, Exception) as e:
-            m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
+            m = {"error": e.__class__.__name__ + ": " + str(e)}
     return m
 
 @awrap
 @unerror(False)
 async def search(noredirectinsta=False, **kwargs):
+    if not tools.APPCONFIG.get("searching"):
+        return {"error": "User disabled searching in settings. Please tell them enable. Once they tell enabled, try call it again"}
     data = kwargs.get("q") or kwargs.get("query") or kwargs.get("prompt")
     count = int(kwargs.get("count", 5))
     if not data:
@@ -308,9 +310,9 @@ async def search(noredirectinsta=False, **kwargs):
             r = await client.post("https://search-proxy-x.onrender.com/", content=json.dumps({"query": data, "contents": {"text": True},"freshness": "noLimit", "count": count}), headers={"Content-Type": "application/json"}, timeout=120)
             m = r.json()
         except json.JSONDecodeError:
-            m = {"error": {"message": "Decode failure on response JSON: " + r.text}}
+            m = {"error": "Decode failure on response JSON: " + r.text}
         except (BaseException, Exception) as e:
-            m = {"error": {"message": e.__class__.__name__ + ": " + str(e)}}
+            m = {"error": e.__class__.__name__ + ": " + str(e)}
     return m
 
 async def deepsearch(**kwargs):

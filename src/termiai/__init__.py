@@ -42,6 +42,7 @@ You have access to these tools:
 - `currentutctime`: Use for getting the current time
 - `run_command`: Use for running shell commands, but user cann't see terminal output
 - `fetch`: Fetches things from internet, as like cURL, but use this instead cURL
+- `report`: Shows a message to user, combine with any tool call, so you can report whatyou doing while running tools
 
 Use the appropriate tool for each task. Do NOT output JSON. Use the native tool calling mechanism.
 Format your response with Markdown.
@@ -81,6 +82,7 @@ def setup_ai(data):
                 return
             cf = page.run_task(tools.run_command, command, at)
             cf.add_done_callback(fgive)
+            asyncio.run(cf)
         async with tools.alock:
             dialog.on_dismiss = lambda e: f.done() or f.set_result("User closed confirmation dialog.")
             dialog.content = ft.Text("AI wants to run command %s at %s\nWould you like to continue?" % (command, at or os.getcwd()))
@@ -88,14 +90,15 @@ def setup_ai(data):
             page.show_dialog(dialog)
             return await f
     ai = tools.AsyncAI(data, sysprompt)
+    ai.assignTool(lambda: None, "report", "Message to user", {"message": {"type": "string", "description": "Message to show to user (please use short and small sentence about 3~4 words per tool what running info. For example, you running pkexec apt update and make this message field to as like Updating APT repositories..."}}, ["message"])
     ai.assignTool(tools.grab, "fetch", "Use this instead cURL, wget, fetches things", {"url": {"type": "string", "description": "URL to fetch"}, "params": {"type": "object", "description": "Parameters in URL so you don't need any custom params on URL"}, "method": {"type": "string", "description": "Methods from POST/PUT/DELETE/GET"}, "json": {"type": "object", "description": "On POST, give this as JSON formatted POST request"}}, ["url"])
-    ai.assignTool(tools.instantSearch, "ddg_search", "Instant search API by duckduckgo, for quick lookups.", {"q": {"type": "string", "description": "Search query"}}, ["q"]) if tools.APPCONFIG.get("instantSearch", True) and tools.APPCONFIG.get("searching", True) else None
-    ai.assignTool(tools.deepsearch, "deepsearch", "Deep search API by LangSearch, for deep and unfindable questions.", {"q": {"type": "string", "description": "Search query"}}, ["q"]) if not tools.APPCONFIG.get("instantSearch", True) and tools.APPCONFIG.get("searching", True) else None
-    ai.assignTool(tools.get_current_time, "currentutctime", "Get latest UTC time", {"local": {"type": "boolean", "description": "Use true"}}, ["local"])
+    ai.assignTool(tools.search, "search", "Search the web!", {"q": {"type": "string", "description": "Search query"}}, ["q"])
+    ai.assignTool(tools.get_current_time, "currentutctime", "Get latest UTC time, with user GMT status", {"local": {"type": "boolean", "description": "Use true"}}, ["local"])
     ai.assignTool(onrun, "run_command", "Runs a shell command. Output is not directly visible to user. Give string instead list/array, we need \"echo 'this_example'\" not ['echo', 'this_example'].", {"command": {"type": "string", "description": "The command (not cmd argument!!!!)"}, "at": {"type": "string", "description": "Directory to run on"}, "background": {"type": "boolean", "description": "Will run on background or foreground? Default is false (foreground) and does not give stderr/stdout/returncode on background ones"}}, ["command"])
     return ai
 
 def chatElem(page: ft.Page, dlg):
+    messagecall = tools.Object()
     name, data = tools.createChatName()
     chat = setup_ai(data)
     def delete_click(e):
@@ -109,6 +112,13 @@ def chatElem(page: ft.Page, dlg):
         page.show_dialog(dlg)
     async def onsend(m):
         tools.CHATJSON[name] = [tools.CHATJSON[name][0], time.time()]
+        @tools.awrap
+        @tools.unerror(False)
+        async def write(message="Running..."):
+            h = messagecall.get()
+            h.get()(message)
+            return await asyncio.sleep(0)
+        chat.funcs["report"] = write
         return await chat.send(m)
     delBtn = ft.IconButton(
         icon=ft.Icons.DELETE_OUTLINE,
@@ -120,7 +130,7 @@ def chatElem(page: ft.Page, dlg):
     page.add_sidebar_tab(
         tools.CHATJSON[name][0],
         ft.Icons.CHAT_OUTLINED,
-        ftapi.shellv2(page, onsend, "Thinking...")[0],
+        ftapi.shellv2(page, onsend, "Thinking...", pobj=messagecall)[0],
         delBtn
     )
 

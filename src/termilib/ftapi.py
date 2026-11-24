@@ -220,11 +220,11 @@ def shellv2(page, do, waitmsg="Please wait...", pobj=None):
         log.controls.append(out)
         send_btn.disabled = True
         inp.disabled = True
+        page.update()
         def changer(v):
             out.value = v
             page.update()
         change.set(changer)
-        page.update()
         response_text = await do(q)
         out.value = response_text
         out.selectable = True
