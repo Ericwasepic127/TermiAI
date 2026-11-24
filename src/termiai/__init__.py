@@ -179,7 +179,7 @@ async def bping():
         await asyncio.sleep(13.75 * 60)
 
 def main(page: ft.Page):
-    page.run_task(bping) if tools.ping_runs else None
+    page.run_task(bping) if not getattr(tools, "ping_runs", False) else None
     page.title = "TermiAI - Your personal helper to run commands for you"
     ftapi.setSize(page, (960, 540), False)
     dlg = ft.AlertDialog(

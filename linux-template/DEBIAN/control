@@ -5,7 +5,7 @@ Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, 
 Vcs-Git: https://github.com/ericwasepic127/termiai.git
 Vcs-Browser: https://github.com/ericwasepic127/termiai
 Priority: optional
-Architecture: amd64
+Architecture: all
 Homepage: https://github.com/ericwasepic127/termiai
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Description: Your personal AI assistant to help terminal
