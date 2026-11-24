@@ -44,9 +44,6 @@ jobs:
         with:
           name: built
           path: windows-dist
-      - uses: aminya/setup-inno-setup@v1
-        with:
-          inno-version: latest
       - name: Compile the installer
         run: |
           choco install innosetup -y
