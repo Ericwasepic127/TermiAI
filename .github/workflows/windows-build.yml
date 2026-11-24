@@ -22,7 +22,7 @@ jobs:
         run: |
           chcp 65001
           pip install flet[all] pyinstaller 
-          flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes --no-compile-packages
+          flet build windows --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes --no-compile-packages
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
