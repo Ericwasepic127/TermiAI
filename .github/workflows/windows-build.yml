@@ -1,0 +1,31 @@
+name: Make windows build
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout existing thing
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: build
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: "pip"
+      - name: Build the app
+        run: |
+          cd build
+          xcopy "assets" "src\assets\" /E /I
+          pip install flet[all]
+          flet build windows --no-compile-packages --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+          xcopy "build\windows" "..\windows" /E /I
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: windows
+        

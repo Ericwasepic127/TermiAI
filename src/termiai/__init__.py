@@ -116,7 +116,7 @@ def chatElem(page: ft.Page, dlg):
         @tools.unerror(False)
         async def write(message="Running..."):
             h = messagecall.get()
-            h.get()(message)
+            h.get()("*" + message.replace("*", "\\*") + "*")
             return await asyncio.sleep(0)
         chat.funcs["report"] = write
         return await chat.send(m)
