@@ -19,7 +19,7 @@ jobs:
       - name: Build the app
         run: |
           cd build
-          xcopy "assests" "src\assests\" /E /I
+          xcopy "assets" "src\assets\" /E /I
           pip install flet[all]
           flet build windows --no-compile-packages --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
           xcopy "build\windows" "..\windows" /E /I
