@@ -78,16 +78,56 @@ Description: Your personal AI assistant to help terminal
 Vcs-Browser: https://github.com/ericwasepic127/termiai
 Vcs-Git: https://github.com/ericwasepic127/termiai.git
 
+Package: TermiAI
+Version: 1.1.2
+Architecture: amd64
+Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
+Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
+Filename: ./termiai-linux-1.1.2-amd64.deb
+Size: 64826820
+MD5sum: 0dbb20e056687996f8228c672faeec64
+SHA1: 0bcff21776e8af546118035ae7eea77df27d8dbe
+SHA256: 4f8be97da2cbeed366070ec6f9ffd7f78c28297ddfaadb02351c12f08d51e59e
+Section: utils
+Priority: optional
+Homepage: https://github.com/ericwasepic127/termiai
+Description: Your personal AI assistant to help terminal
+ TermiAI is a Flet-based GUI AI assistant that helps users run
+ terminal commands without fear. It supports tool calling, web
+ search, and a custom agent loop.
+Vcs-Browser: https://github.com/ericwasepic127/termiai
+Vcs-Git: https://github.com/ericwasepic127/termiai.git
+
+Package: TermiAI
+Version: 1.1.2
+Architecture: arm64
+Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
+Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
+Filename: ./termiai-linux-1.1.2-arm64.deb
+Size: 61920328
+MD5sum: d60ac2c425e76a42f325978585fa6e2b
+SHA1: 525cf62feb04a0d226a404dd413845f1c709afad
+SHA256: b7497766117ae58e80507f183e9424edfa5db25fee0056023f29c7a90ec51cf0
+Section: utils
+Priority: optional
+Homepage: https://github.com/ericwasepic127/termiai
+Description: Your personal AI assistant to help terminal
+ TermiAI is a Flet-based GUI AI assistant that helps users run
+ terminal commands without fear. It supports tool calling, web
+ search, and a custom agent loop.
+Vcs-Browser: https://github.com/ericwasepic127/termiai
+Vcs-Git: https://github.com/ericwasepic127/termiai.git
+
 Package: termiai-source
-Version: 0.0.1-test1
+Version: 1.1.2
 Architecture: all
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: python3, python3-pip, git
 Filename: ./termiai-source-pack.deb
 Size: 33288
-MD5sum: 97b47812f75b9efdffb69f7c1afe02a8
-SHA1: 7072aa861cb16380d787820260a94a20a69bfe4f
-SHA256: c9550c265a905d7b571e1ac558e6b9a27a76ec7ab3bbea52459eb0759eccfa7f
+MD5sum: 9f2c4f7ce0f56ecf409c81e57219405c
+SHA1: 36cf1e0b6a2bcc0098d4db996ddb059d5c9b856b
+SHA256: 97a8c411b7f7940b74f8fd92543878be8702c59920dbe5eea7a29a5a4d695065
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
