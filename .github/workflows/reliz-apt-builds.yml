@@ -63,7 +63,7 @@ jobs:
           cp -r assets/* src/assets/
 
       - name: Build the app
-        run: cd main-repo && flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+        run: cd main-repo && flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes --no-compile-packages
 
       - name: Package .deb using linux-template
         id: pkg

@@ -13,17 +13,6 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - shell: bash
-        id: ver
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            RAW_TAG="${{ github.event.release.tag_name }}"
-            CLEAN_VER="${RAW_TAG#v}"
-          else
-            CLEAN_VER="${{ github.event.inputs.version }}"
-          fi
-          echo "version=${CLEAN_VER}" >> $GITHUB_OUTPUT
-          echo "Building version: ${CLEAN_VER}"
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
@@ -37,19 +26,15 @@ jobs:
         run: |
           chcp 65001
           pip install flet[all] pyinstaller 
-          flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.ico --name termiai-windows --company-name "Ericwasepic127" -D --distpath windows-dist -y
-          
+          flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes --no-compile-packages
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: built
-          path: windows-dist
+          path: build\windows
       - name: Compile the installer
-        run: |
-          choco install innosetup -y
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
-          
-      - uses: actions/upload-artifact@v4
+        run: iscc installer.iss
+      - uses: actions/upload-artifact@v7
         with:
           name: termiai-windows-setup
           path: build\installer\*.exe
