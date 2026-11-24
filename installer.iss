@@ -1,6 +1,6 @@
 #define AppId "io.github.ericwasepic127.terminal-assistant-interface"
 #define AppExe "termiai-windows.exe"
-#define BuildDir "windows-dist"
+#define BuildDir "build\windows"
 
 #define AppExePath AddBackslash(SourcePath) + BuildDir + "\" + AppExe
 #define ArtifactName Copy(AppExe, 1, Len(AppExe) - 4)
