@@ -4,31 +4,31 @@ Hash: SHA512
 Architectures: amd64 arm64
 Codename: stable
 Components: main
-Date: Mon, 23 Nov 2026 03:12:00 +0000
+Date: Tue, 24 Nov 2026 17:11:23 +0000
 Description: Official APT repository for TermiAI
 Label: TermiAI
 Origin: TermiAI
 Suite: stable
 MD5Sum:
- d6e1f11ae9b970e8e711856e26b3180f             2697 Packages
- 0006929c53ec5062b1f335d34f867a2a              837 Packages.gz
- b630367700e69112fa54c2e151d6c6d7              193 Release
+ f9f8279b11c00672e491a96e14a91d36             4653 Packages
+ 16630d78ec366f1b7848b0c27e59abca             1073 Packages.gz
+ bd469e0393f8fcb94984a3af215ebf5e              193 Release
 SHA1:
- 6801967712aa2117d91fc6e7e2d66b09e7d6b747             2697 Packages
- e34cccdf35d94e9a97aa583fd412dcf1dad3576e              837 Packages.gz
- 7874347774ab2674915776b530db945dfd3816b6              193 Release
+ 310714d75ff766beecad848f60a46f8a92de1811             4653 Packages
+ f30caea4ac8223756ae19db676ad64ee25fbb8e4             1073 Packages.gz
+ 8f94b7921aed8a29ec7670303ee70d4457c9764c              193 Release
 SHA256:
- b14c8bd30e16563f19482b3f453d5d1f7ed180cf5712b6d3aeb3e6c8dbae4190             2697 Packages
- b127ecb68c504890a01401c87d50f2fd3680cb5bc4000f070e63e3b7d8d9dcb2              837 Packages.gz
- a27134b24a42922ae3c47ac5c56e28c2f2b070fb97b85dbfa8cda87bc653426b              193 Release
+ de3aae6a6e1def8485075353f678b403799e18cdcc1c73b72d4337604c15dc0b             4653 Packages
+ bae5d6880006231d1bf66baef73ae416a1a2909f23fc6a3915f877d3442d29d4             1073 Packages.gz
+ 08e64f1de66684110c5860aa8a0badc3f197f3a30f0376a535092e4a030a0c17              193 Release
 SHA512:
- b2c2aee3d276f857728607f3659a4c7de749db6e8c463a47176b94c083d840272a53641c0d8a2387550448350c5198570b68deeb48ecb85000fe80a5578f1da1             2697 Packages
- 8353c51527e61c7b4c6d4c5a277eb45bc7fdf06a5f413286302b025f5b92799f0297586a0f34927ee6ac002c6ae62b277c702ff7558b47fa7433b7b677cc39b3              837 Packages.gz
- baa9d01ef8a07cd359facbc86765ac96967ffcbed976f1976ab68f0fc945bb9142272eeef2d609296ba2f38a6a72766e3404348c8755e27d173ade693cd70552              193 Release
+ 5594bd6781d8b93650d5c99876d344850a61928f785bd9c8e55fb2a24fd271fc1d5508b2acdb767b8ca7a911ceefdb9227ea34e7e2f3de563cd075d49c11dcd2             4653 Packages
+ d97e3b0a7e1a7d157e4dc21f57406cf6d7e70acf02cf9497d75acc51b47295530fe3d334e4cf8e646d9cde4c765e337c12f4a4f15b20f45bc720366b12bad3c6             1073 Packages.gz
+ 6ef90ed20ac7e66cf2b53143b86c538b0515a879342f366c3034df686beeb0d187b471894e2613bcad42f3c4f44c94a5655b708c96cab3f132c8e3575b812363              193 Release
 -----BEGIN PGP SIGNATURE-----
 
-iHUEARYKAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCawOvAAAKCRDpIkWH4hgk
-Bv+QAP46v7fS4M4O4N7hotzZJe0xHbsmop+a9vbW8zm+kfj9FwD/XLvv+ZT0wn+8
-CJTk2e9gcjgtgRmZzzVvosUrBZHtEgU=
-=Hqwl
+iHUEARYKAB0WIQSo7sUFLTPmOJbu90npIkWH4hgkBgUCawXFOwAKCRDpIkWH4hgk
+BqxdAQDVaA5KGaxxj1mveoiEUlumO5cHJlr+ueBbC+nS2G/AegEAwexvu9q5QP87
+MkX3o0dKdzFtyla23CKLR3JCPj6hLwk=
+=MXm3
 -----END PGP SIGNATURE-----
