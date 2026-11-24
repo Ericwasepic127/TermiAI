@@ -1,44 +1,55 @@
 name: Make windows build
 
 on: 
+  release:
+    types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number'
+        required: true
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout existing thing
-        uses: actions/checkout@v7
-        with:
-          ref: main
-          path: build
+      - shell: bash
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW_TAG="${{ github.event.release.tag_name }}"
+            CLEAN_VER="${RAW_TAG#v}"
+          else
+            CLEAN_VER="${{ github.event.inputs.version }}"
+          fi
+          echo "version=${CLEAN_VER}" >> $GITHUB_OUTPUT
+          echo "Building version: ${CLEAN_VER}"
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: "3.14"
           cache: "pip"
+          check-latest: false
       - name: Build the app
         env:
             PYTHONUTF8: "1"
             PYTHONIOENCODING: "utf-8"
         run: |
           chcp 65001
-          cd build
-          xcopy "assets" "src\assets\" /E /I
           pip install flet[all]
-          flet build windows --no-compile-packages --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
-          xcopy "build\windows" "..\windows" /E /I
-          copy "assets\icon.ico" "..\windows" /E /I
+          flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.ico --name termiai-windows --company-name "Ericwasepic127" -D --distpath windows-dist -y
+          
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build
-          path: windows
-  package:
-    runs-on: windows-latest
-    steps:
-      - name: Download artifact
-        uses: actions/upload-artifact@v4
+          name: built
+          path: windows-dist
+      - uses: aminya/setup-inno-setup@v1
         with:
-          name: build
-          path: src
-      - name: 
+          inno-version: latest
+      - name: Compile the installer
+        run: iscc installer.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: termiai-windows-setup
+          path: main-repo/build/installer/*.exe
