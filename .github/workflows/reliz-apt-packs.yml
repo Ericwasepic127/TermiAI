@@ -1,4 +1,4 @@
-name: Build & Publish .deb + APT Repo on Release (OLD)
+name: Build & Publish .deb + APT Repo on Release
 
 on:
   #release:
@@ -30,10 +30,6 @@ jobs:
           key: apt-${{ matrix.os }}-fletbuild
           restore-keys: |
             apt-${{ matrix.os }}-fletbuild
-      - uses: actions/setup-python@v7
-        with:
-          python-version: "3.14"
-          cache: "pip"
       - name: Install APT indexing tools
         run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
       - name: Determine Version
@@ -52,18 +48,20 @@ jobs:
         uses: actions/checkout@v7
         with:
           path: main-repo
-
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+          cache: "pip"
+          check-latest: false
+          
       - name: Install dependences
         run: |
-          pip3 install flet[all]
+          pip3 install flet[all] pyinstaller
           sudo apt update
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
-          cd main-repo
-          mkdir -p src/assets/
-          cp -r assets/* src/assets/
 
       - name: Build the app
-        run: cd main-repo && flet build linux --verbose --no-compile-app --exclude dist/ --exclude .github/ --exclude .git/ --module-name termiai_main --yes
+        run: cd main-repo && flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.png --name termiai --company-name "Ericwasepic127" --pyinstaller-build-args=-F -y
 
       - name: Package .deb using linux-template
         id: pkg
@@ -71,16 +69,21 @@ jobs:
           cd main-repo
           VER="${{ steps.ver.outputs.version }}"
           DEB_NAME="termiai-linux-${VER}-${{ matrix.arch }}.deb"
-          rm -rf linux-template/usr/lib/TermiAI/*
-          mkdir -p linux-template/usr/lib/TermiAI
-          cp -r build/linux/* linux-template/usr/lib/TermiAI/
-          chmod -R 755 linux-template/usr/lib/TermiAI
           mkdir -p linux-template/usr/bin
-          ln -sf /usr/lib/TermiAI/Terminal-Assistant-Interface linux-template/usr/bin/termiai
+          mv dist/termiai linux-template/usr/bin/
+          chmod 755 linux-template/usr/bin/termiai
+          rm -rf linux-template/usr/share/icons/hicolor/512x512/apps/io.github.ericwasepic127.terminal-assistant-interface.png || true
+          cp dist/io.github.ericwasepic127.terminal-assistant-interface.png linux-template/usr/share/icons/hicolor/512x512/apps/
+          rm -rf linux-template/usr/share/applications/io.github.ericwasepic127.terminal-assistant-interface.desktop || true
+          cp dist/io.github.ericwasepic127.terminal-assistant-interface.desktop linux-template/usr/share/applications/
+          sed -i 's|^Exec=.*|Exec="/usr/bin/termiai"|' linux-template/usr/share/applications/io.github.ericwasepic127.terminal-assistant-interface.desktop
+          chmod 755 linux-template/usr/share/icons/hicolor/512x512/apps/io.github.ericwasepic127.terminal-assistant-interface.png
+          chmod 755 linux-template/usr/share/applications/io.github.ericwasepic127.terminal-assistant-interface.desktop
           sed -i "s/^Version:.*/Version: ${VER}/" linux-template/DEBIAN/control
           sed -i "s/^Architecture:.*/Architecture: ${{ matrix.arch }}/" linux-template/DEBIAN/control
           chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
           chmod 644 linux-template/DEBIAN/control
+          
           mkdir ../debpacks
           dpkg-deb --root-owner-group --build linux-template "../debpacks/$DEB_NAME"
           echo "deb_name=${DEB_NAME}" >> $GITHUB_OUTPUT

@@ -36,7 +36,7 @@ jobs:
             PYTHONIOENCODING: "utf-8"
         run: |
           chcp 65001
-          pip install flet[all]
+          pip install flet[all] pyinstaller 
           flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.ico --name termiai-windows --company-name "Ericwasepic127" -D --distpath windows-dist -y
           
       - name: Upload artifact
@@ -52,4 +52,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: termiai-windows-setup
-          path: main-repo/build/installer/*.exe
+          path: build\installer\*.exe
