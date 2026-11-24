@@ -53,3 +53,8 @@ jobs:
         with:
           name: termiai-windows-setup
           path: build\installer\*.exe
+      - name: Attach Installer to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/installer/*.exe
