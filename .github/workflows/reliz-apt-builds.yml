@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Cache APT packages
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: /var/cache/apt/archives
           key: apt-${{ matrix.os }}-fletbuild
@@ -92,6 +92,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Cache APT packages
+        uses: actions/cache@v6
+        with:
+          path: /var/cache/apt/archives
+          key: apt-ubuntu-latest
+          restore-keys: |
+            apt-ubuntu-latest
       - name: Install APT indexing tools
         run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
       - uses: actions/checkout@v7
