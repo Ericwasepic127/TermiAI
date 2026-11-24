@@ -60,7 +60,7 @@ jobs:
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
 
       - name: Build the app
-        run: cd main-repo && flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id 1 --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.output.version }} --pyinstaller-build-args "-F -n termiai" -y
+        run: cd main-repo && flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.png --name termiai --company-name "Ericwasepic127" --pyinstaller-build-args="-F" -y
 
       - name: Package .deb using linux-template
         id: pkg
@@ -70,8 +70,14 @@ jobs:
           DEB_NAME="termiai-linux-${VER}-${{ matrix.arch }}.deb"
           mkdir -p linux-template/usr/bin
           mv dist/termiai linux-template/usr/bin/
-          
           chmod 755 linux-template/usr/bin/termiai
+          rm -rf linux-template/usr/share/icons/hicolor/512x512/apps/io.github.ericwasepic127.terminal-assistant-interface.png || true
+          cp dist/io.github.ericwasepic127.terminal-assistant-interface.png linux-template/usr/share/icons/hicolor/512x512/apps/
+          rm -rf linux-template/usr/share/applications/io.github.ericwasepic127.terminal-assistant-interface.desktop || true
+          cp dist/io.github.ericwasepic127.terminal-assistant-interface.desktop linux-template/usr/share/applications/
+          sed -i 's|^Exec=.*|Exec="/usr/bin/termiai"|' linux-template/usr/share/applications/io.github.ericwasepic127.terminal-assistant-interface.desktop
+          chmod 755 linux-template/usr/share/icons/hicolor/512x512/apps/io.github.ericwasepic127.terminal-assistant-interface.png
+          chmod 755 linux-template/usr/share/applications/io.github.ericwasepic127.terminal-assistant-interface.desktop
           sed -i "s/^Version:.*/Version: ${VER}/" linux-template/DEBIAN/control
           sed -i "s/^Architecture:.*/Architecture: ${{ matrix.arch }}/" linux-template/DEBIAN/control
           chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
