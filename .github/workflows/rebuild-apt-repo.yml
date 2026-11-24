@@ -7,6 +7,13 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - name: Cache APT packages
+        uses: actions/cache@v6
+        with:
+          path: /var/cache/apt/archives
+          key: apt-ubuntu-latest
+          restore-keys: |
+            apt-ubuntu-latest
       - name: Checkout existing apt-repos branch
         uses: actions/checkout@v7
         with:
