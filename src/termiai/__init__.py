@@ -206,37 +206,60 @@ def main(page: ft.Page):
     darkTog = ft.Switch(label="Dark mode", on_change=darkMode, value=tools.APPCONFIG.get("dark", False))
     def apiChange(e):
         tools.APPCONFIG["customUrlApiKey"] = api_key.value
+        tools.KEY = api_key.value
         async def wait_and_done():
-            toggle_btn = e.control
             api_key.password = api_key.disabled = toggle_btn.disabled = True
             toggle_btn.icon = ft.Icons.DONE
             page.update()
-            await asyncio.sleep(3.5)
+            await asyncio.sleep(2)
+            if not tools.APPCONFIG.get("customApi"):
+                return
             toggle_btn.disabled = api_key.disabled = False
             toggle_btn.icon = ft.Icons.VISIBILITY_OFF
             page.update()
         page.run_task(wait_and_done)
     def endChange(e):
         tools.APPCONFIG["customUrl"] = endpoint.value
+        tools.URL = endpoint.value
         async def wait_and_done():
             endpoint.disabled = True
             emark.icon = ft.Icons.DONE
             page.update()
-            await asyncio.sleep(3.5)
+            await asyncio.sleep(2)
             if not tools.APPCONFIG.get("customApi"):
                 return
             endpoint.disabled = False
             emark.icon = ft.Icons.KEYBOARD_RETURN
             page.update()
         page.run_task(wait_and_done)
+    def modChange(e):
+        tools.APPCONFIG["customModel"] = modelai.value
+        tools.MODEL = modelai.value
+        async def wait_and_done():
+            modelai.disabled = True
+            modelaico.icon = ft.Icons.DONE
+            page.update()
+            await asyncio.sleep(2)
+            if not tools.APPCONFIG.get("customApi"):
+                return
+            modelai.disabled = False
+            modelaico.icon = ft.Icons.KEYBOARD_RETURN
+            page.update()
+        page.run_task(wait_and_done)
     def server_select(e):
         if e.control.value == "c":
             tools.APPCONFIG["customApi"] = True
-            api_key.disabled = endpoint.disabled = False
+            api_key.disabled = endpoint.disabled = modelai.disabled = False
+            tools.MODEL = tools.APPCONFIG.get("customApiModel", "")
+            tools.KEY = tools.APPCONFIG.get("customUrlApiKey", "")
+            endpoint.value = tools.APPCONFIG.get("customUrl", "")
+            api_key.value = tools.KEY
+            modelai.value = tools.MODEL
         else:
-            api_key.disabled = endpoint.disabled = True
+            api_key.disabled = endpoint.disabled = modelai.disabled = True
             tools.APPCONFIG["customApi"] = False
             tools.APPCONFIG["api"] = e.control.value
+            tools.MODEL = tools.KEY = None
             tools.URL = tools.BASEAIURL % e.control.value
             page.run_task(tools.loop)
     def toggle_visibility(e):
@@ -247,8 +270,11 @@ def main(page: ft.Page):
     endpoint = ft.TextField(disabled=not tools.APPCONFIG.get("customApi"), label="Custom endpoint URL", value=tools.URL if tools.APPCONFIG.get("customApi") else "", on_submit=endChange, expand=True)
     emark = ft.Icon(ft.Icons.KEYBOARD_RETURN)
     toggle_btn = ft.IconButton(icon=ft.Icons.VISIBILITY_OFF, on_click=toggle_visibility)
+    modelai = ft.TextField(disabled=not tools.APPCONFIG.get("customApi"), label="AI Model for Custom Endpoint", value=tools.MODEL if tools.APPCONFIG.get("customApi") else "", on_submit=modChange, expand=True)
+    modelaico = ft.Icon(ft.Icons.KEYBOARD_RETURN)
     arow = ft.Row(controls=[api_key, toggle_btn])
     erow = ft.Row(controls=[endpoint, emark])
+    mrow = ft.Row(controls=[modelai, modelaico])
     choose_server = ft.Dropdown(
         label="Select server",
         width=700,
@@ -335,6 +361,7 @@ def main(page: ft.Page):
                 choose_server,
                 erow,
                 arow,
+                mrow,
                 choose_search,
                 backup_row,
             ],

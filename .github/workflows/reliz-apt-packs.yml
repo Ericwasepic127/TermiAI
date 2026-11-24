@@ -1,4 +1,4 @@
-name: Build & Publish .deb + APT Repo on Release
+name: Build & Publish .deb + APT Repo on Release packs
 
 on:
   #release:

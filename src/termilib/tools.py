@@ -254,6 +254,8 @@ async def post(data):
             h = {"Content-Type": "application/json"}
             if KEY:
                 h["Authorization"] = "Bearer " + KEY
+            if MODEL:
+                data["model"] = MODEL
             r = await client.post(URL or "https://ai-proxy-x.onrender.com/", content=json.dumps(data), headers=h, timeout=120, follow_redirects=True)
             m = r.json()
             if isinstance(m, list):
@@ -522,6 +524,7 @@ CHATJSON = LiveJson(CHATS)
 APPCONFIG = LiveJson(JOIN(CONFIGS, "appcfg.json"), default_data=DEFAULTDATA)
 URL = APPCONFIG.get("customUrl", BASEAIURL % "x") or BASEAIURL % "x" if APPCONFIG.get("customApi") else BASEAIURL % APPCONFIG.get("api", "x")
 KEY = APPCONFIG.get("customUrlApiKey") if APPCONFIG.get("customApi") else None
+MODEL = APPCONFIG.get("customApiModel") if APPCONFIG.get("customApi") else None
 INSTANTSEARCH = APPCONFIG.get("instantSearch", True)
 
 if __name__ == '__main__':
