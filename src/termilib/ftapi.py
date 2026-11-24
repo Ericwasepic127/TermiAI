@@ -188,11 +188,11 @@ def shellv2(page, do, waitmsg="Please wait...", pobj=None):
                 log.controls.append(ft.Divider(thickness=1))
                 log.flag = False
             log.controls.append(
-                ft.Markdown(
+                ft.Container(content=ft.Markdown(
                     value=f"**You:** {msg.replace('\n', '\n\n')}",
                     selectable=True,
-                    on_tap_link=handle_link
-                )
+                    on_tap_link=handle_link,
+                ), alignment=ft.Alignment.TOP_RIGHT)
             )
         elif role == 1:
             log.flag = True
@@ -210,11 +210,11 @@ def shellv2(page, do, waitmsg="Please wait...", pobj=None):
         if len(log.controls) > 0:
             log.controls.append(ft.Divider(thickness=1))
         log.controls.append(
-            ft.Markdown(
+            ft.Container(content=ft.Markdown(
                 value=f"**You:** {q.replace('\n', '\n\n')}",
                 selectable=True,
                 on_tap_link=handle_link
-            )
+            ), alignment=ft.Alignment.TOP_RIGHT)
         )
         out = ft.Markdown(value=f"*{waitmsg}*", selectable=False, extension_set=ft.MarkdownExtensionSet.GITHUB_WEB)
         log.controls.append(out)
@@ -234,6 +234,8 @@ def shellv2(page, do, waitmsg="Please wait...", pobj=None):
         await inp.focus()
         change.clear()
         page.update()
+        await inp.focus()
+        page.run_task(inp.focus)
     inp.on_submit = lambda e: page.run_task(send, e)
     send_btn.on_click = lambda e: page.run_task(send, e)
     return [ft.Container(content=log, expand=True), ft.Row([inp, send_btn])], append

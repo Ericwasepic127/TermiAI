@@ -135,12 +135,20 @@ def chatElem(page: ft.Page, dlg):
     )
 
 def loadChatFromJson(page, name, dlg):
+    messagecall = tools.Object()
     data = tools.loadChat(name  + ".json")
     chat = setup_ai(data)
     async def onsend(m):
         tools.CHATJSON[name] = [tools.CHATJSON[name][0], time.time()]
+        @tools.awrap
+        @tools.unerror(False)
+        async def write(message="Running..."):
+            messagecall.get()("*" + message.replace("*", "\\*") + "*")
+            return await asyncio.sleep(0)
+        chat.funcs["report"] = write
         return await chat.send(m)
-    item, ap = ftapi.shellv2(page, onsend, "Thinking...")
+    item, ap = ftapi.shellv2(page, onsend, "Thinking...", pobj=messagecall)
+    messagecall = messagecall.get()
     def delete_click(e):
         def ok(e):
             tools.deleteChat(name)
@@ -179,7 +187,7 @@ async def bping():
         await asyncio.sleep(13.75 * 60)
 
 def main(page: ft.Page):
-    page.run_task(bping) if not getattr(tools, "ping_runs", False) else None
+    page.run_task(bping) if not tools.ping_runs else None
     page.title = "TermiAI - Your personal helper to run commands for you"
     ftapi.setSize(page, (960, 540), False)
     dlg = ft.AlertDialog(
@@ -196,22 +204,63 @@ def main(page: ft.Page):
     else:
         page.theme_mode = ft.ThemeMode.LIGHT
     darkTog = ft.Switch(label="Dark mode", on_change=darkMode, value=tools.APPCONFIG.get("dark", False))
-    
+    def apiChange(e):
+        tools.APPCONFIG["customUrlApiKey"] = api_key.value
+        async def wait_and_done():
+            toggle_btn = e.control
+            api_key.password = api_key.disabled = toggle_btn.disabled = True
+            toggle_btn.icon = ft.Icons.DONE
+            page.update()
+            await asyncio.sleep(3.5)
+            toggle_btn.disabled = api_key.disabled = False
+            toggle_btn.icon = ft.Icons.VISIBILITY_OFF
+            page.update()
+        page.run_task(wait_and_done)
+    def endChange(e):
+        tools.APPCONFIG["customUrl"] = endpoint.value
+        async def wait_and_done():
+            endpoint.disabled = True
+            emark.icon = ft.Icons.DONE
+            page.update()
+            await asyncio.sleep(3.5)
+            if not tools.APPCONFIG.get("customApi"):
+                return
+            endpoint.disabled = False
+            emark.icon = ft.Icons.KEYBOARD_RETURN
+            page.update()
+        page.run_task(wait_and_done)
     def server_select(e):
-        tools.APPCONFIG["api"] = e.control.value
-        tools.URL = tools.BASEAIURL % e.control.value
-        page.run_task(tools.loop)
+        if e.control.value == "c":
+            tools.APPCONFIG["customApi"] = True
+            api_key.disabled = endpoint.disabled = False
+        else:
+            api_key.disabled = endpoint.disabled = True
+            tools.APPCONFIG["customApi"] = False
+            tools.APPCONFIG["api"] = e.control.value
+            tools.URL = tools.BASEAIURL % e.control.value
+            page.run_task(tools.loop)
+    def toggle_visibility(e):
+        api_key.password = not api_key.password
+        toggle_btn.icon = ft.Icons.VISIBILITY_OFF if api_key.password else ft.Icons.VISIBILITY
+        page.update()
+    api_key = ft.TextField(disabled=not tools.APPCONFIG.get("customApi"), label="API Key for Custom endpoint", value=tools.KEY, expand=True, password=True, on_submit=apiChange)
+    endpoint = ft.TextField(disabled=not tools.APPCONFIG.get("customApi"), label="Custom endpoint URL", value=tools.URL if tools.APPCONFIG.get("customApi") else "", on_submit=endChange, expand=True)
+    emark = ft.Icon(ft.Icons.KEYBOARD_RETURN)
+    toggle_btn = ft.IconButton(icon=ft.Icons.VISIBILITY_OFF, on_click=toggle_visibility)
+    arow = ft.Row(controls=[api_key, toggle_btn])
+    erow = ft.Row(controls=[endpoint, emark])
     choose_server = ft.Dropdown(
         label="Select server",
-        width=500,
+        width=700,
         on_select=server_select, 
         options=[
             ft.dropdown.Option(key="x", text="Server in Oregon, Account index 0"),
             ft.dropdown.Option(key="2", text="Server in Oregon, Account index 1"),
             ft.dropdown.Option(key="3", text="Server in Singapore, Account index 0"),
             ft.dropdown.Option(key="4", text="Server in Frankfurt, Account index 1"),
+            ft.dropdown.Option(key="c", text="Custom endpoint (must OpenAI-compatible)"),
         ],
-        value=tools.APPCONFIG.get("api", "x")
+        value="c" if tools.APPCONFIG.get("customApi") else tools.APPCONFIG.get("api", "x")
     )
     def search_select(e):
         v = int(e.control.value)
@@ -229,7 +278,7 @@ def main(page: ft.Page):
         main(page)
     choose_search = ft.Dropdown(
         label="AI searchability",
-        width=500,
+        width=700,
         on_select=search_select, 
         options=[
             ft.dropdown.Option(key="1", text="Off (not recommended)"),
@@ -284,8 +333,10 @@ def main(page: ft.Page):
                 ft.Text("Settings", size=30),
                 darkTog,
                 choose_server,
+                erow,
+                arow,
                 choose_search,
-                backup_row
+                backup_row,
             ],
             "label": "Settings",
             "icon": ft.Icons.SETTINGS

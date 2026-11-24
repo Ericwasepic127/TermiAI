@@ -514,13 +514,14 @@ DEFAULTDATA = {
     "customUrl": "",
     "customUrlApiKey": "",
     "instantSearch": True,
-    "maxToolLoop": 5,
+    "maxToolLoop": 6,
+    "customApi": False,
 }
 
 CHATJSON = LiveJson(CHATS)
 APPCONFIG = LiveJson(JOIN(CONFIGS, "appcfg.json"), default_data=DEFAULTDATA)
-URL = APPCONFIG.get("customUrl", BASEAIURL % "x") or BASEAIURL % "x" if APPCONFIG.get("customUrl") else BASEAIURL % APPCONFIG.get("api", "x")
-KEY = APPCONFIG.get("customUrlApiKey")
+URL = APPCONFIG.get("customUrl", BASEAIURL % "x") or BASEAIURL % "x" if APPCONFIG.get("customApi") else BASEAIURL % APPCONFIG.get("api", "x")
+KEY = APPCONFIG.get("customUrlApiKey") if APPCONFIG.get("customApi") else None
 INSTANTSEARCH = APPCONFIG.get("instantSearch", True)
 
 if __name__ == '__main__':
