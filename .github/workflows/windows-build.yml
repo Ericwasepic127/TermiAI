@@ -3,7 +3,7 @@ name: Make windows build
 on: 
   workflow_dispatch:
 
-jobs:t
+jobs:
   build:
     runs-on: windows-latest
     steps:
