@@ -60,7 +60,7 @@ jobs:
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
 
       - name: Build the app
-        run: cd main-repo && flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.png --name termiai --company-name "Ericwasepic127" --pyinstaller-build-args="-F" -y
+        run: cd main-repo && flet pack src/termiai_main.py --product-name "TermiAI" --bundle-id "io.github.ericwasepic127.terminal-assistant-interface" --file-description "Your personal AI assistant to help terminal" --product-version ${{ steps.ver.outputs.version }} --icon assets/icon.png --name termiai --company-name "Ericwasepic127" --pyinstaller-build-args "-F" -y
 
       - name: Package .deb using linux-template
         id: pkg
