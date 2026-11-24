@@ -1,5 +1,5 @@
 #define AppId "io.github.ericwasepic127.terminal-assistant-interface"
-#define AppExe "termiai-windows.exe"
+#define AppExe "Terminal-Assistant-Interface.exe"
 #define BuildDir "build\windows"
 
 #define AppExePath AddBackslash(SourcePath) + BuildDir + "\" + AppExe
