@@ -80,14 +80,14 @@ Vcs-Git: https://github.com/ericwasepic127/termiai.git
 
 Package: TermiAI
 Version: 1.1.2
-Architecture: amd64
+Architecture: arm64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
-Filename: ./termiai-linux-1.1.2-amd64.deb
-Size: 58796724
-MD5sum: e552c822fd298cc741357efc643265f6
-SHA1: 1c53a4e172ae5044ccbe4db6f5b4b4dc09d8fc2c
-SHA256: d30ecc3918ebd01960437fe1dc59930a40cdd05dc945e1ec283c2811792d7af5
+Filename: ./termiai-linux-1.1.2-arm64.deb
+Size: 54966852
+MD5sum: 12ed1610000eb49691e6e2f1b06b2a87
+SHA1: a2fcd3d8fe37fd4804528d375a18132e531be8ce
+SHA256: 2e3f60c05ef62da43851bd5c744dd75afdf66b41eab68693154e4abf17192795
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
@@ -100,14 +100,14 @@ Vcs-Git: https://github.com/ericwasepic127/termiai.git
 
 Package: TermiAI
 Version: 1.1.2
-Architecture: arm64
+Architecture: amd64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
-Filename: ./termiai-linux-1.1.2-arm64.deb
-Size: 54930024
-MD5sum: 8e3108d1238115c22a6e6507be9298b4
-SHA1: 604b2a8b93e148f01d088ff00f7f03bd14f2c509
-SHA256: bc8207d82b8f5c043f8fff9559bcae30ab3f0ac553e66320fd867f98363543cf
+Filename: ./termiai-linux-1.1.2-amd64.deb
+Size: 58840904
+MD5sum: 2f38c6c2f25684608cf845a1d7e6b006
+SHA1: 2a25088d5511b7421a8e2d0a67e601c26d6c541b
+SHA256: 8b8869133dcfe0e3ae013b6cba4b2c0344de8c6c2c78c5d5a5dcdb7727db4b33
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
@@ -124,10 +124,10 @@ Architecture: all
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: python3, python3-pip, git
 Filename: ./termiai-source-pack.deb
-Size: 33696
-MD5sum: f3d2ec9af1cfc2971ccd828fc91e0cdf
-SHA1: a6f1676084daae170dd43179f4051135152bceef
-SHA256: 14648776e77d37e32a97b896efa2b4218041c83c89f5eb4b6a4861ab41d8b8be
+Size: 33288
+MD5sum: 77d128a3230af4ca68e408d7231e7642
+SHA1: 7419bde14a9419901e854b42614780fb4c4c87b6
+SHA256: 433689f9475eb823f44d13657c3baad896be5694725ed42f4612ae032cc6d1c4
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
