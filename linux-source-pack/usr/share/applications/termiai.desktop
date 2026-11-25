@@ -1,8 +1,10 @@
 [Desktop Entry]
 Name=TermiAI
 Comment=Your personal AI assistant to help terminal
-Exec=termiai
+Exec=termiai-source
 Icon=termiai
 Terminal=false
 Type=Application
 Categories=Development;Utility;
+Path=
+StartupNotify=false
