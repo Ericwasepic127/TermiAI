@@ -28,6 +28,10 @@ jobs:
             arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
+      - run: |
+          mkdir -p ${{ github.workspace }}/.apt-cache/archives/partial
+          sudo rm -f /etc/apt/apt.conf.d/docker-clean || true
+          echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/01keep-debs
       - name: Cache APT packages
         uses: actions/cache@v6
         with:
@@ -99,15 +103,19 @@ jobs:
 
   publish:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
+      - run: |
+          mkdir -p ${{ github.workspace }}/.apt-cache/archives/partial
+          sudo rm -f /etc/apt/apt.conf.d/docker-clean || true
+          echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/01keep-debs
       - name: Cache APT packages
         uses: actions/cache@v6
         with:
           path: /var/cache/apt/archives
-          key: apt-ubuntu-latest
+          key: apt-ubuntu-24-arm
           restore-keys: |
-            apt-ubuntu-latest
+            apt-ubuntu-24-arm
       - name: Install APT indexing tools
         run: sudo apt-get update && sudo apt-get install -y apt-utils dpkg-dev
       - uses: actions/checkout@v7
