@@ -84,10 +84,10 @@ Architecture: arm64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
 Filename: ./termiai-linux-1.1.2-arm64.deb
-Size: 54897648
-MD5sum: dcd0209af57ef92bf45f766d37a35c79
-SHA1: 1c3046986ffb9ba9190be5d449093e40b05e8fca
-SHA256: 8dec0c23af51caa57e6e07a8940254628013b3e7cc8534c365073ad0c14f050a
+Size: 54897664
+MD5sum: a0555c5805a5827b52b609663ac80951
+SHA1: 0cee87f0ed591e2ba43eeb0e94dd3d876512583c
+SHA256: c415567649e8e9acea1c338e98fb628a0abc76ddf71c48c99aa1700f568db81a
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
@@ -104,10 +104,10 @@ Architecture: amd64
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: libgtk-3-0 | libgtk-3-0t64, libasound2 | libasound2t64, libsecret-1-0, libunwind8, mpv, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav
 Filename: ./termiai-linux-1.1.2-amd64.deb
-Size: 58782944
-MD5sum: 348ac7551a6cd3640b24628551c393eb
-SHA1: 4ad703d0c67a70712d595e5069e722deb939755b
-SHA256: 9adc61cf379448f3859777a063641af1f4b5d8eae483827ceca9d8d0770ce755
+Size: 58769540
+MD5sum: 0490efabc5ae5e4d85944f5dffc45552
+SHA1: 8976c6637f688994851474f7cb25fbb7d3ddaf57
+SHA256: 6823867938aa4838e0bb1c0d9af89f850c9308c6a2bd3c56cc5c7ef62de01bc8
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai
@@ -124,10 +124,10 @@ Architecture: all
 Maintainer: Ericwasepic127 <ericwasepic127@outlook.com>
 Depends: python3, python3-pip, git
 Filename: ./termiai-source-pack.deb
-Size: 33288
-MD5sum: 7b24ac1ecd0e31166ad03158a5e181de
-SHA1: 675a17bc8548e4dc8cb89efff083423e366fd003
-SHA256: 58d40c5d26229cd568cb1221de79754667f22dd9b25d7b002af2762a386dc61b
+Size: 33320
+MD5sum: 72b30d3f761776665afc7ef5d007c2a5
+SHA1: f61713ce169070987a96294a52b29038b3a7656c
+SHA256: 8e6b7d7ad3ebd532587c67a86618ba87c8824cc517d3d7b7562492ab1e322531
 Section: utils
 Priority: optional
 Homepage: https://github.com/ericwasepic127/termiai

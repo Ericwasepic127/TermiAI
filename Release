@@ -1,24 +1,24 @@
 Architectures: amd64 arm64
 Codename: stable
 Components: main
-Date: Wed, 25 Nov 2026 03:39:26 +0000
+Date: Wed, 25 Nov 2026 16:29:38 +0000
 Description: Official APT repository for TermiAI
 Label: TermiAI
 Origin: TermiAI
 Suite: stable
 MD5Sum:
- 17403fc218a86721687041b59044b4c0             6573 Packages
- b599de7fe9022759f5ecd4748ba6c2f2             1298 Packages.gz
- 72fdadb04e02e75b846bf78ab0203098              193 Release
+ 337b18733efcfd34dad0453e0fbb6fe5             6573 Packages
+ 4c2e7ea51aa1d0b1db9e8971c146457a             1294 Packages.gz
+ 6bee1afa34240037fd38864bda8b5b74              193 Release
 SHA1:
- 1df35c73e169ac9bd5dcdb880e2684ed180aaf96             6573 Packages
- 392d75bbf7cd2227ad9d609a330ef9fbae958631             1298 Packages.gz
- 7d502c62be39d9f95498979100b2dc7beeddb971              193 Release
+ 3d12517f9ff06ffef73e3ad9bec913740bea5a3d             6573 Packages
+ c039557f19feafe5e301ee51dd54ba6ef3a79140             1294 Packages.gz
+ 58631c9b89260775cccaa6f027ebc71df7f10df1              193 Release
 SHA256:
- 02f7ba88051da433ed2524f190bf4b61c7f50c24e5bb43f7479919d1990b9164             6573 Packages
- 7110b1779cfb7ab31400ccfe9d41c1b47a514ffe3cd94c85b58719f1e739a2c6             1298 Packages.gz
- a51945cfd7673151d138c3f03609fd78b7b230e6cbb2715b6e55a3a1892a2910              193 Release
+ ef141218db736c2df75c855aac5cce3160da3cf8b41a717d078c22e507d0c27b             6573 Packages
+ d4ba7e9996184ab50040c84d65433885f56f610ea9bde9e635be861be9112836             1294 Packages.gz
+ bf724184b1fcd67791c62605702252e2ce32382b938faffc7476055459cc6c7c              193 Release
 SHA512:
- 16f9401317f1ae52a86310b8f255af20ff081c0ba5f7c11228f0ddd96f94834d7ac1980f80ad781effecd9fe5c25401292b4380f8e10456e2be799fe2b8b27b0             6573 Packages
- bcc9661c99a16a0134d33cffbdfb14d5c4c11dc3968a03795ab821c8c16fc15d4c284a3d93fe579b2fbaaeefe377aea1c6952a0c960c0653fd298d0bdd705aa1             1298 Packages.gz
- 80df859ac8fbd52b6de9d8a2a71541ae45e96f0a5d8b42c097ff1bef3f0e4122c39a2d308185c050dd21a062958f9f5fffff39ab5dc26de4efe969eabf20dc37              193 Release
+ bdee2cf28bbca838c1aec608d1be0827dfbb32077eb45e31b967b28bcc2f86c2c989c0575fba7061034e0c563c20098582790e02289ba893e3a6f52b9ba1dcc6             6573 Packages
+ f6c494fb8f2c340f5fbadaf3c28f7426ec3c6b1eb4c6f5c46b392d93446ae220b1a92ccd5c5c5b0a25e46c941067a3e253e522a41418318b9407d2e8f39e151f             1294 Packages.gz
+ baa932a711f51ed0ab29790406dfb46d155a93f971225743dba0e18f0ade3edbf21a35f9e07fb87b06cc9e2d754b69d31ae566997bef1951d09330aaed2f1e2e              193 Release
