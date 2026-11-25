@@ -8,6 +8,11 @@ on:
       version:
         description: 'Version number'
         required: true
+      includerelease:
+        description: 'Upload in release?'
+        type: boolean
+        required: true
+        default: true
 
 permissions:
   contents: write
@@ -89,6 +94,7 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
+          tag: ${{ github.event.release.tag_name }} 
           files: ${{ steps.pkg.outputs.deb_name }}
 
   publish:
