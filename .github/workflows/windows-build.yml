@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    ver:
+      description: 'version with v prefix'
+      required: true
     includerelease:
       description: 'Upload in release?'
       type: boolean
@@ -43,5 +46,5 @@ jobs:
         if: github.event_name == 'release' || inputs.includerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'release' && github.event.release.tag_name || format('v{0}', steps.ver.outputs.version) }}
+          tag_name: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.ver }}
           files: build\installer\*.exe
