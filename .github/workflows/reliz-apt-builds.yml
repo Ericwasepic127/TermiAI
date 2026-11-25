@@ -87,7 +87,7 @@ jobs:
           chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
           chmod 644 linux-template/DEBIAN/control
           mkdir ../debpacks
-          dpkg-deb --dbgsym-variables="Argument=--ultra -22" --root-owner-group --build linux-template "../debpacks/$DEB_NAME"
+          dpkg-deb -Z zstd -z 22 --root-owner-group --build linux-template "../debpacks/$DEB_NAME"
           echo "deb_name=${DEB_NAME}" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v6
@@ -132,7 +132,7 @@ jobs:
           mkdir -p linux-sp
           cp -r main-repo/linux-source-pack/* linux-sp/
           sed -i "s/^Version:.*/Version: ${CLEAN_VER}/" linux-sp/DEBIAN/control
-          dpkg-deb -Zxz -z9 --root-owner-group --build linux-sp "termiai-source-pack.deb"
+          dpkg-deb --root-owner-group --build linux-sp "termiai-source-pack.deb"
       - uses: actions/download-artifact@v6
         with:
           name: debpack-arm64
