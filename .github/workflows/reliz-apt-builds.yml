@@ -95,7 +95,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag: ${{ github.event_name == 'release' && github.event.release.tag_name || format('v{0}', steps.ver.outputs.version) }}
-          files: ${{ steps.pkg.outputs.deb_name }}
+          files: "debpacks/${{ steps.pkg.outputs.deb_name }}"
 
   publish:
     needs: build
