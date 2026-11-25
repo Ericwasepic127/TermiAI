@@ -4,6 +4,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    includerelease:
+      description: 'Upload in release?'
+      type: boolean
+      required: false
+      default: false
 
 jobs:
   build:
@@ -34,9 +39,9 @@ jobs:
         with:
           name: termiai-windows-setup
           path: build\installer\*.exe
-      - name: Attach Installer to GitHub Release
-        if: github.event_name == 'release'
+      - name: Attach .deb to GitHub Release
+        if: github.event_name == 'release' || inputs.includerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag: ${{ github.event.release.tag_name }}
+          tag_name: ${{ github.event_name == 'release' && github.event.release.tag_name || format('v{0}', steps.ver.outputs.version) }}
           files: build\installer\*.exe
