@@ -87,7 +87,7 @@ jobs:
           chmod 755 linux-template/DEBIAN/* 2>/dev/null || true
           chmod 644 linux-template/DEBIAN/control
           mkdir ../debpacks
-          dpkg-deb --compression-level=22 --root-owner-group --build linux-template "../debpacks/$DEB_NAME"
+          dpkg-deb --compression-level=9 --compression=xz --compression-strategy=extreme --root-owner-group --build linux-template "../debpacks/$DEB_NAME"
           echo "deb_name=${DEB_NAME}" >> $GITHUB_OUTPUT
 
       - uses: actions/upload-artifact@v6
