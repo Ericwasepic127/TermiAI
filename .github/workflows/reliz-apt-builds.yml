@@ -94,7 +94,7 @@ jobs:
         if: github.event_name == 'release' || inputs.includerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag: ${{ github.event.release.tag_name }} || ${{ steps.ver.outputs.version }}
+          tag: ${{ github.event_name == 'release' && github.event.release.tag_name || format('v{0}', steps.ver.outputs.version) }}
           files: ${{ steps.pkg.outputs.deb_name }}
 
   publish:
