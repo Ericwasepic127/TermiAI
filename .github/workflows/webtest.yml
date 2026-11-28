@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
+          sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
+          mkdir -p src/assets/
+          cp -r assets/* src/assets/
           python -m pip install --upgrade pip
 
           if [ -f requirements.txt ]; then
