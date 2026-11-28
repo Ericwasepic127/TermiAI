@@ -64,8 +64,10 @@ def setup_ai(data):
     dialog = ft.AlertDialog(
         title=ft.Text("Request to run command"),
     )
+    noreturn = tools.Object()
     @tools.unerror(False)
     async def onrun(command="", at="", background=False):
+        noreturn.set(True) 
         f = asyncio.Future()
         def fgive(task):
             if task.cancelled():
@@ -82,9 +84,8 @@ def setup_ai(data):
                 return
             cf = page.run_task(tools.run_command, command, at)
             cf.add_done_callback(fgive)
-            asyncio.run(cf)
         async with tools.alock:
-            dialog.on_dismiss = lambda e: f.done() or f.set_result("User closed confirmation dialog.")
+            dialog.on_dismiss = lambda e: f.done() or noreturn.get() or f.set_result("User closed confirmation dialog.")
             dialog.content = ft.Text("AI wants to run command %s at %s\nWould you like to continue?" % (command, at or os.getcwd()))
             dialog.actions = [ft.Button(content="YES", on_click=ok), ft.Button(content="NO", on_click=lambda e: page.pop_dialog() or f.set_result("User denied command execution."))]
             page.show_dialog(dialog)
