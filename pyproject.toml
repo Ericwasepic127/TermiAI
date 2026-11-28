@@ -20,7 +20,8 @@ dependencies = [
     "requests",
     "platformdirs",
     "httpx",
-    "flet[all]",
+    "flet",
+    "flet-desktop",
 ]
 
 [project.scripts]
