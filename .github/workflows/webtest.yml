@@ -11,9 +11,19 @@ permissions:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04
     steps:
+      - run: |
+          mkdir -p ${{ github.workspace }}/.apt-cache/archives/partial
+          sudo rm -f /etc/apt/apt.conf.d/docker-clean || true
+          echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/01keep-debs
+      - name: Cache APT packages
+        uses: actions/cache@v6
+        with:
+          path: /var/cache/apt/archives
+          key: apt-${{ matrix.os }}-webtrialbuild
+          restore-keys: |
+            apt-${{ matrix.os }}-webtrialbuild
       - name: Check out repository
         uses: actions/checkout@v7.0.1
 
@@ -36,6 +46,7 @@ jobs:
           fi
 
           python -m pip install flet-cli
+          sudo apt update
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
 
       - name: Build Flet web app
