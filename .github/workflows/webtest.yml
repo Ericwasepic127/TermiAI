@@ -39,6 +39,9 @@ jobs:
         shell: bash
         run: |
           flet build web \
+            --module-name termiai_main.py \
+            --no-compile-app \
+            --no-compile-packages \
             --yes \
             --verbose \
             --base-url "/${GITHUB_REPOSITORY#*/}/"
