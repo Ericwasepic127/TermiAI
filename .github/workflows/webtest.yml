@@ -45,7 +45,7 @@ jobs:
             python -m pip install .
           fi
 
-          python -m pip install flet-cli
+          python -m pip install flet[all]
           sudo apt update
           sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
 
