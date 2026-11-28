@@ -20,12 +20,11 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7.1.0
         with:
-          python-version: "3.15"
+          python-version: "3.14"
 
       - name: Install dependencies
         shell: bash
         run: |
-          sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
           mkdir -p src/assets/
           cp -r assets/* src/assets/
           python -m pip install --upgrade pip
@@ -37,6 +36,7 @@ jobs:
           fi
 
           python -m pip install flet-cli
+          sudo apt install -y $(flet --version --json | python3 -c "import json,sys; print(' '.join(json.load(sys.stdin)['linux_dependencies']))")
 
       - name: Build Flet web app
         shell: bash
